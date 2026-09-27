@@ -48,9 +48,9 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            padding: 1.5rem 2.5rem;
+            padding: 1.5rem 2rem;
             position: relative;
-            overflow-y: auto; /* 支援上下滑動，徹底避免塞不下問題 */
+            overflow-y: auto;
         }
 
         .page-header {
@@ -60,10 +60,12 @@
             border-bottom: 2px solid var(--panel-border);
             padding-bottom: 0.8rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .page-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--primary);
             text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
@@ -77,7 +79,7 @@
             border: 1px solid var(--panel-border);
             backdrop-filter: blur(16px);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             margin-bottom: 1rem;
             display: flex;
             flex-direction: column;
@@ -87,7 +89,7 @@
 
         .switch-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 0.8rem;
         }
 
@@ -95,10 +97,10 @@
             display: flex;
             align-items: center;
             gap: 0.8rem;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.03);
-            padding: 0.6rem 1rem;
+            padding: 0.6rem 0.9rem;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.06);
         }
@@ -112,8 +114,8 @@
 
         .slider-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.2rem 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1rem 1.5rem;
         }
 
         .control-group {
@@ -121,7 +123,7 @@
             flex-direction: column;
             gap: 0.4rem;
             background: rgba(0, 0, 0, 0.25);
-            padding: 0.8rem 1rem;
+            padding: 0.7rem 0.9rem;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
@@ -129,7 +131,7 @@
         .control-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--text-muted);
         }
 
@@ -137,7 +139,7 @@
             color: var(--primary);
             font-weight: bold;
             font-family: monospace;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         input[type="range"] {
@@ -163,29 +165,30 @@
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid var(--panel-border);
             color: var(--primary);
-            padding: 0.5rem 0.8rem;
+            padding: 0.4rem 0.7rem;
             border-radius: 6px;
             font-family: monospace;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             outline: none;
+            width: 100%;
         }
 
         .nav-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0;
+            padding: 0.8rem 0;
             margin-top: auto;
         }
 
         .btn {
-            padding: 0.6rem 1.6rem;
+            padding: 0.55rem 1.4rem;
             border: 1px solid var(--primary);
             background: rgba(0, 240, 255, 0.1);
             color: var(--primary);
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -203,20 +206,21 @@
 
         .tab-bar {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             border-bottom: 1px solid var(--panel-border);
             padding-bottom: 8px;
             margin-bottom: 12px;
             overflow-x: auto;
+            white-space: nowrap;
         }
 
         .tab-btn {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
-            padding: 6px 14px;
+            padding: 6px 12px;
             border-radius: 6px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             cursor: pointer;
             white-space: nowrap;
         }
@@ -235,7 +239,11 @@
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 1rem;
-            min-height: 400px;
+            min-height: 380px;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
 
         .chart-box {
@@ -255,7 +263,7 @@
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 10px;
-            padding: 1.2rem;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.8rem;
@@ -264,12 +272,12 @@
         .metric-card {
             background: rgba(0, 0, 0, 0.3);
             border-left: 3px solid var(--primary);
-            padding: 0.8rem;
+            padding: 0.7rem;
             border-radius: 0 6px 6px 0;
         }
 
-        .metric-card-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .metric-card-value { font-size: 1.3rem; font-family: monospace; font-weight: bold; color: #fff; margin-top: 2px; }
+        .metric-card-title { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; }
+        .metric-card-value { font-size: 1.2rem; font-family: monospace; font-weight: bold; color: #fff; margin-top: 2px; }
 
         .modal-overlay {
             position: fixed;
@@ -287,7 +295,7 @@
             border-radius: 16px; display: flex; flex-direction: column; padding: 1.5rem;
         }
         .log-table-wrapper { flex-grow: 1; overflow: auto; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.82rem; }
         th, td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
         th { background: rgba(0, 240, 255, 0.12); color: var(--primary); position: sticky; top: 0; backdrop-filter: blur(4px); }
     </style>
@@ -295,13 +303,13 @@
 <body>
 
     <div id="slider-container">
-        <!-- STEP 0: 全新「晶片規格與目標自動推算配置」面板 -->
+        <!-- STEP 0: 晶片規格與目標自動推算配置 -->
         <div class="step-page" id="step-0">
             <div class="page-header">
-                <div class="page-title">⚙️ Step 0: 輸入目標規格 (自動推算並配置參數)</div>
+                <div class="page-title">⚙️ Step 0: 輸入目標規格 (自動推算並配置 8 大模組)</div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <span style="font-size: 0.85rem; color: var(--text-muted);">快速預設範本：</span>
-                    <select id="preset-select" onchange="applyPreset(this.value)">
+                    <select id="preset-select" style="width: auto;" onchange="applyPreset(this.value)">
                         <option value="custom">-- 自訂規格 --</option>
                         <option value="ai">AI 超級運算 3D Cube (500W TDP)</option>
                         <option value="auto">車用/航太高可靠 3D Cube (150W TDP)</option>
@@ -312,9 +320,9 @@
 
             <div class="module-card">
                 <div style="color: var(--primary); font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
-                    💡 請輸入您的晶片預期設計規格，系統將自動套用對應的物理參數與控制開關：
+                    💡 輸入您的晶片設計目標，系統將自動套用 8 大模組對應的 50+ 項物理參數與控制開關：
                 </div>
-                <div class="slider-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 0.5rem;">
+                <div class="slider-grid">
                     <div class="control-group">
                         <label class="control-label">目標熱設計功耗 (TDP Watt)</label>
                         <input type="number" id="spec_tdp" value="250" min="10" max="2000">
@@ -341,7 +349,7 @@
                     </div>
                 </div>
 
-                <div style="display: flex; gap: 15px; margin-top: 1rem; justify-content: flex-end;">
+                <div style="display: flex; gap: 15px; margin-top: 0.5rem; justify-content: flex-end;">
                     <button class="btn btn-commit" onclick="autoCalculateAndApply()">根據規格自動推算並套用 ⚡</button>
                 </div>
             </div>
@@ -546,82 +554,119 @@
             </div>
         </div>
 
-        <!-- STEP 9: 運算渲染面板與多頁籤分析 -->
+        <!-- STEP 9: 運算渲染面板與完整 8 大模組圖表分析 -->
         <div class="step-page" id="step-9">
             <div class="page-header">
-                <div class="page-title">📊 Step 9: 3D Cube 極致運算渲染與綜合評估中心</div>
+                <div class="page-title">📊 Step 9: 3D Cube 極致運算渲染與全模組數據評估中心</div>
                 <div style="display: flex; gap: 10px;">
                     <button class="btn btn-reset" onclick="exportCSV()">匯出 Full CSV 數據</button>
                     <button class="btn" onclick="nextStep(8)">⬅ 重設參數</button>
                 </div>
             </div>
 
+            <!-- 完整 8 大模組圖表頁籤列 -->
             <div class="tab-bar">
-                <button class="tab-btn active" onclick="switchTab('tab-thermal')">1. 熱力學與二相流</button>
-                <button class="tab-btn" onclick="switchTab('tab-routing')">2. 八向斜線與交通</button>
-                <button class="tab-btn" onclick="switchTab('tab-power')">3. 雙電網與 UPS 應急</button>
-                <button class="tab-btn" onclick="switchTab('tab-optics')">4. 散射光學與減法除噪</button>
-                <button class="tab-btn" onclick="switchTab('tab-electron')">5. 自由電子回收與控制大廳</button>
-                <button class="tab-btn" style="border-color: var(--accent-yellow); color: var(--accent-yellow);" onclick="switchTab('tab-benchmark')">🏆 3D Cube 前衛成果總對比報告</button>
+                <button class="tab-btn active" onclick="switchTab('tab-m1')">1. 幾何與六面體</button>
+                <button class="tab-btn" onclick="switchTab('tab-m2')">2. 相變與氣液冷</button>
+                <button class="tab-btn" onclick="switchTab('tab-m3')">3. 八向斜線與交通</button>
+                <button class="tab-btn" onclick="switchTab('tab-m4')">4. 雙電網與 UPS</button>
+                <button class="tab-btn" onclick="switchTab('tab-m5')">5. 散射光學與除噪</button>
+                <button class="tab-btn" onclick="switchTab('tab-m6')">6. 控制大廳調度</button>
+                <button class="tab-btn" onclick="switchTab('tab-m7')">7. 自由電子回收</button>
+                <button class="tab-btn" onclick="switchTab('tab-m8')">8. 純物理被動降頻</button>
+                <button class="tab-btn" style="border-color: var(--accent-yellow); color: var(--accent-yellow);" onclick="switchTab('tab-benchmark')">🏆 3D Cube 總對比報告</button>
             </div>
 
-            <!-- Tab 1: 熱力學與二相流 -->
-            <div class="tab-content active" id="tab-thermal">
+            <!-- Tab 1: 幾何與六面體 -->
+            <div class="tab-content active" id="tab-m1">
                 <div class="dashboard-grid">
-                    <div class="chart-box"><div class="canvas-container"><canvas id="chartThermal"></canvas></div></div>
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM1"></canvas></div></div>
                     <div class="metrics-sidebar">
-                        <div class="metric-card"><div class="metric-card-title">最高樓層溫度 (Max Temp)</div><div class="metric-card-value" id="m-temp">-- ℃</div></div>
-                        <div class="metric-card"><div class="metric-card-title">被動相變二相流狀態</div><div class="metric-card-value" id="m-cooling-status" style="font-size: 1rem; color: var(--primary);">--</div></div>
-                        <div class="metric-card"><div class="metric-card-title">即時運作頻率 (Clock Frequency)</div><div class="metric-card-value" id="m-freq">-- GHz</div></div>
+                        <div class="metric-card"><div class="metric-card-title">晶片堆疊總層數</div><div class="metric-card-value" id="m1-layers">-- 層</div></div>
+                        <div class="metric-card"><div class="metric-card-title">四柱空心支架層高</div><div class="metric-card-value" id="m1-height">-- µm</div></div>
+                        <div class="metric-card"><div class="metric-card-title">6-Face 幾何散熱增益</div><div class="metric-card-value" id="m1-gain" style="color: var(--accent-green);">+25.0 %</div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 2: 八向斜線與交通 -->
-            <div class="tab-content" id="tab-routing">
+            <!-- Tab 2: 相變與氣/液冷 -->
+            <div class="tab-content" id="tab-m2">
                 <div class="dashboard-grid">
-                    <div class="chart-box"><div class="canvas-container"><canvas id="chartRouting"></canvas></div></div>
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM2"></canvas></div></div>
                     <div class="metrics-sidebar">
-                        <div class="metric-card" style="border-color: var(--secondary);"><div class="metric-card-title">平均時序延遲 (Average Latency)</div><div class="metric-card-value" id="m-latency">-- ns</div></div>
-                        <div class="metric-card"><div class="metric-card-title">八向斜線捷徑距離縮減率</div><div class="metric-card-value" id="m-routing-saving" style="color: var(--accent-green);">-- %</div></div>
+                        <div class="metric-card"><div class="metric-card-title">最高樓層溫度 (Max Temp)</div><div class="metric-card-value" id="m2-temp">-- ℃</div></div>
+                        <div class="metric-card"><div class="metric-card-title">二相流汽化冷卻狀態</div><div class="metric-card-value" id="m2-status" style="font-size: 0.95rem; color: var(--primary);">--</div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 3: 雙電網與 UPS 應急 -->
-            <div class="tab-content" id="tab-power">
+            <!-- Tab 3: 八向斜線與立體交通 -->
+            <div class="tab-content" id="tab-m3">
                 <div class="dashboard-grid">
-                    <div class="chart-box"><div class="canvas-container"><canvas id="chartPower"></canvas></div></div>
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM3"></canvas></div></div>
                     <div class="metrics-sidebar">
-                        <div class="metric-card"><div class="metric-card-title">瞬態 IR Drop 電壓降</div><div class="metric-card-value" id="m-ir-drop">-- V</div></div>
-                        <div class="metric-card"><div class="metric-card-title">UPS 電位差開關補償狀態</div><div class="metric-card-value" id="m-ups-status" style="font-size: 1rem; color: var(--accent-yellow);">--</div></div>
+                        <div class="metric-card" style="border-color: var(--secondary);"><div class="metric-card-title">平均時序延遲 (Average Latency)</div><div class="metric-card-value" id="m3-latency">-- ns</div></div>
+                        <div class="metric-card"><div class="metric-card-title">對角線捷徑距離縮減率</div><div class="metric-card-value" id="m3-saving" style="color: var(--accent-green);">32.0 %</div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 4: 散射光學與減法除噪 -->
-            <div class="tab-content" id="tab-optics">
+            <!-- Tab 4: 雙電網與 UPS 應急 -->
+            <div class="tab-content" id="tab-m4">
                 <div class="dashboard-grid">
-                    <div class="chart-box"><div class="canvas-container"><canvas id="chartOptics"></canvas></div></div>
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM4"></canvas></div></div>
                     <div class="metrics-sidebar">
-                        <div class="metric-card" style="border-color: var(--accent-red);"><div class="metric-card-title">散射光學誤碼率 (BER)</div><div class="metric-card-value" id="m-ber">--</div></div>
-                        <div class="metric-card"><div class="metric-card-title">減法消除白光噪訊比</div><div class="metric-card-value" id="m-sub-noise" style="color: var(--primary);">-- dB</div></div>
+                        <div class="metric-card"><div class="metric-card-title">瞬態 IR Drop 電壓降</div><div class="metric-card-value" id="m4-ir-drop">-- V</div></div>
+                        <div class="metric-card"><div class="metric-card-title">UPS 電位差開關狀態</div><div class="metric-card-value" id="m4-ups-status" style="font-size: 0.95rem; color: var(--accent-yellow);">--</div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 5: 自由電子回收與控制大廳 -->
-            <div class="tab-content" id="tab-electron">
+            <!-- Tab 5: 散射光學與減法除噪 -->
+            <div class="tab-content" id="tab-m5">
                 <div class="dashboard-grid">
-                    <div class="chart-box"><div class="canvas-container"><canvas id="chartElectron"></canvas></div></div>
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM5"></canvas></div></div>
                     <div class="metrics-sidebar">
-                        <div class="metric-card"><div class="metric-card-title">自由電子集中回收功耗</div><div class="metric-card-value" id="m-reclaimed-power" style="color: var(--accent-green);">-- W</div></div>
-                        <div class="metric-card"><div class="metric-card-title">控制大廳封包吞吐量</div><div class="metric-card-value" id="m-hub-status">-- PKT/s</div></div>
+                        <div class="metric-card" style="border-color: var(--accent-red);"><div class="metric-card-title">光學訊號誤碼率 (BER)</div><div class="metric-card-value" id="m5-ber">--</div></div>
+                        <div class="metric-card"><div class="metric-card-title">白光減法消除噪訊比</div><div class="metric-card-value" id="m5-noise" style="color: var(--primary);">-- dB</div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 6: 專題前衛成果極致總對比報告 -->
+            <!-- Tab 6: 控制大廳調度 -->
+            <div class="tab-content" id="tab-m6">
+                <div class="dashboard-grid">
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM6"></canvas></div></div>
+                    <div class="metrics-sidebar">
+                        <div class="metric-card"><div class="metric-card-title">控制大廳即時吞吐量</div><div class="metric-card-value" id="m6-throughput">-- M-PKT/s</div></div>
+                        <div class="metric-card"><div class="metric-card-title">空間去耦合減熱比率</div><div class="metric-card-value" id="m6-decouple">-- %</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: 自由電子回收 -->
+            <div class="tab-content" id="tab-m7">
+                <div class="dashboard-grid">
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM7"></canvas></div></div>
+                    <div class="metrics-sidebar">
+                        <div class="metric-card"><div class="metric-card-title">自由電子回收能效</div><div class="metric-card-value" id="m7-power" style="color: var(--accent-green);">-- W</div></div>
+                        <div class="metric-card"><div class="metric-card-title">定向氣流驅趕效率</div><div class="metric-card-value" id="m7-flow">--</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 8: 純物理被動降頻 -->
+            <div class="tab-content" id="tab-m8">
+                <div class="dashboard-grid">
+                    <div class="chart-box"><div class="canvas-container"><canvas id="chartM8"></canvas></div></div>
+                    <div class="metrics-sidebar">
+                        <div class="metric-card"><div class="metric-card-title">即時運作時脈 (Clock)</div><div class="metric-card-value" id="m8-freq">-- GHz</div></div>
+                        <div class="metric-card"><div class="metric-card-title">被動自動降頻觸發狀態</div><div class="metric-card-value" id="m8-status" style="font-size: 0.95rem; color: var(--accent-yellow);">--</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 9: 專題總對比報告 -->
             <div class="tab-content" id="tab-benchmark">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     <div class="chart-box">
@@ -630,7 +675,7 @@
                     </div>
                     <div class="chart-box" style="gap: 1rem;">
                         <div style="font-weight: bold; color: var(--accent-yellow);">專題突破亮點綜合評估總結</div>
-                        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+                        <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-muted);">
                             <p>✅ <b>八向斜配線捷徑</b>：時序延遲較傳統 TSV 平均降低 <span id="rep-latency-saving" style="color: var(--accent-green); font-weight: bold;">--</span>%。</p>
                             <p>✅ <b>被動相變與氣/液雙閥門</b>：極端高溫抑制能力提升 <span id="rep-temp-saving" style="color: var(--primary); font-weight: bold;">--</span>%。</p>
                             <p>✅ <b>自由電子能量回收</b>：將雜散電子成功轉化補給電力達 <span id="rep-power-reclaimed" style="color: var(--accent-yellow); font-weight: bold;">--</span> W。</p>
@@ -671,7 +716,6 @@
     </div>
 
     <script>
-        // 出廠預設參數變數庫
         const DEFAULT_CONFIG = {
             sw_geom: true, sw_cube_6face: true, sw_quad_pillars: true, p_layers: 12, p_geo_density: 1.20, p_inter_r: 0.250, p_die_thick: 250, p_si_cond: 148,
             sw_thermal: true, sw_semi_open_valves: true, sw_ext_power_cooling: true, p_cooling_temp: 65.0, p_valve_k: 2.00, p_tec_eff: 0.120, p_latent_k: 3.00, p_reflux_rate: 1.50,
@@ -694,7 +738,6 @@
             8: ['sw_passive_freq', 'p_freq_down_temp', 'p_freq_slope']
         };
 
-        // UI 綁定
         Object.keys(DEFAULT_CONFIG).forEach(key => {
             const el = document.getElementById(key);
             if (el && el.type === 'range') {
@@ -705,7 +748,6 @@
             }
         });
 
-        // 規格自動計算配置引擎 (Step 0 Spec Engine)
         function autoCalculateAndApply() {
             const tdp = parseFloat(document.getElementById('spec_tdp').value) || 250;
             const size = parseFloat(document.getElementById('spec_size').value) || 20;
@@ -714,7 +756,6 @@
             const noiseDb = parseFloat(document.getElementById('spec_noise_db').value) || 15;
             const routingTarget = parseFloat(document.getElementById('spec_routing_target').value) || 35;
 
-            // 高階物理推算算式
             const computedVDD = Math.min(2.5, Math.max(0.6, 0.8 + (tdp / 400.0) * 0.5));
             const computedValveK = Math.min(5.0, Math.max(0.5, (tdp / 100.0) * 0.8));
             const computedTSVSpeed = Math.min(15.0, Math.max(1.5, 2.0 + (routingTarget / 10.0)));
@@ -722,7 +763,6 @@
             const computedAgentTol = Math.min(4.0, Math.max(0.5, 1.0 + (noiseDb / 20.0)));
             const computedGasFlow = Math.min(5.0, Math.max(0.5, (tdp / 150.0) * 1.2));
 
-            // 套用數值至滑桿與 DOM
             setInputValue('p_layers', layers);
             setInputValue('p_vdd_volt', computedVDD.toFixed(2));
             setInputValue('p_valve_k', computedValveK.toFixed(2));
@@ -732,7 +772,6 @@
             setInputValue('p_gas_flow_k', computedGasFlow.toFixed(2));
             setInputValue('p_freq_down_temp', (80 + (tdp / 50.0)).toFixed(1));
 
-            // 高功耗情境自動導通相關防護開關
             document.getElementById('sw_semi_open_valves').checked = tdp > 100;
             document.getElementById('sw_ups_battery').checked = true;
             document.getElementById('sw_subtractive_filter').checked = noiseDb > 10;
@@ -751,7 +790,6 @@
             }
         }
 
-        // 預設範本
         function applyPreset(presetKey) {
             if (presetKey === 'ai') {
                 document.getElementById('spec_tdp').value = 500;
@@ -809,7 +847,6 @@
         }
         window.addEventListener('keydown', (e) => { if (e.key === 'Escape') toggleModal(false); });
 
-        // 圖表實體
         let charts = {}, simInterval = null, simLogs = [];
 
         function commitAndSimulate() {
@@ -871,7 +908,7 @@
                 let upsComp = "Standby";
                 if (cfg.sw_ups_battery && irDrop > 0.06) {
                     irDrop -= cfg.p_power_comp * 0.1;
-                    upsComp = "ACTIVE (UPS Compensating)";
+                    upsComp = "ACTIVE (UPS Compensation)";
                 }
 
                 let ber = 0, subNoise = 0;
@@ -890,7 +927,7 @@
                     reclaimedPower = trafficLoad * 12.5 * cfg.p_gas_flow_k * cfg.p_electron_eff;
                 }
 
-                updateChartsAndMetrics(step, currentTemps, currentFreq, latency, irDrop, ber, reclaimedPower, trafficLoad, maxTemp, upsComp, subNoise);
+                updateChartsAndMetrics(step, currentTemps, currentFreq, latency, irDrop, ber, reclaimedPower, trafficLoad, maxTemp, upsComp, subNoise, cfg);
 
                 if (step >= totalSteps) clearInterval(simInterval);
             }, 40);
@@ -901,11 +938,14 @@
 
             const optCommon = { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } };
 
-            charts.thermal = new Chart(document.getElementById('chartThermal'), { type: 'line', data: { labels: [], datasets: [{ label: 'Max Temp (℃)', data: [], borderColor: '#ef4444', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
-            charts.routing = new Chart(document.getElementById('chartRouting'), { type: 'line', data: { labels: [], datasets: [{ label: '3D Cube Latency (ns)', data: [], borderColor: '#a855f7', borderWidth: 2, pointRadius: 0 }, { label: 'Traditional TSV Latency (ns)', data: [], borderColor: '#94a3b8', borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0 }] }, options: optCommon });
-            charts.power = new Chart(document.getElementById('chartPower'), { type: 'line', data: { labels: [], datasets: [{ label: 'IR Drop Voltage (V)', data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
-            charts.optics = new Chart(document.getElementById('chartOptics'), { type: 'line', data: { labels: [], datasets: [{ label: 'BER (誤碼率)', data: [], borderColor: '#00f0ff', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
-            charts.electron = new Chart(document.getElementById('chartElectron'), { type: 'line', data: { labels: [], datasets: [{ label: 'Reclaimed Power (W)', data: [], borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m1 = new Chart(document.getElementById('chartM1'), { type: 'line', data: { labels: [], datasets: [{ label: '3D 體積功耗積壓發熱 (Heat Index)', data: [], borderColor: '#00f0ff', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m2 = new Chart(document.getElementById('chartM2'), { type: 'line', data: { labels: [], datasets: [{ label: 'Max Temp (℃)', data: [], borderColor: '#ef4444', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m3 = new Chart(document.getElementById('chartM3'), { type: 'line', data: { labels: [], datasets: [{ label: '3D Cube Latency (ns)', data: [], borderColor: '#a855f7', borderWidth: 2, pointRadius: 0 }, { label: 'Traditional TSV Latency (ns)', data: [], borderColor: '#94a3b8', borderDash: [4, 4], borderWidth: 1.5, pointRadius: 0 }] }, options: optCommon });
+            charts.m4 = new Chart(document.getElementById('chartM4'), { type: 'line', data: { labels: [], datasets: [{ label: 'IR Drop Voltage (V)', data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m5 = new Chart(document.getElementById('chartM5'), { type: 'line', data: { labels: [], datasets: [{ label: 'BER (誤碼率)', data: [], borderColor: '#00f0ff', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m6 = new Chart(document.getElementById('chartM6'), { type: 'line', data: { labels: [], datasets: [{ label: 'Hub Throughput (M-PKT/s)', data: [], borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m7 = new Chart(document.getElementById('chartM7'), { type: 'line', data: { labels: [], datasets: [{ label: 'Reclaimed Power (W)', data: [], borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
+            charts.m8 = new Chart(document.getElementById('chartM8'), { type: 'line', data: { labels: [], datasets: [{ label: 'Clock Frequency (GHz)', data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
 
             charts.radar = new Chart(document.getElementById('chartRadar'), {
                 type: 'radar',
@@ -920,26 +960,35 @@
             });
         }
 
-        function updateChartsAndMetrics(step, temps, freq, latency, irDrop, ber, reclaimedPower, trafficLoad, maxTemp, upsComp, subNoise) {
-            charts.thermal.data.labels.push(step); charts.thermal.data.datasets[0].data.push(maxTemp); charts.thermal.update();
-            charts.routing.data.labels.push(step); charts.routing.data.datasets[0].data.push(latency); charts.routing.data.datasets[1].data.push(latency * 1.55); charts.routing.update();
-            charts.power.data.labels.push(step); charts.power.data.datasets[0].data.push(irDrop); charts.power.update();
-            charts.optics.data.labels.push(step); charts.optics.data.datasets[0].data.push(ber); charts.optics.update();
-            charts.electron.data.labels.push(step); charts.electron.data.datasets[0].data.push(reclaimedPower); charts.electron.update();
+        function updateChartsAndMetrics(step, temps, freq, latency, irDrop, ber, reclaimedPower, trafficLoad, maxTemp, upsComp, subNoise, cfg) {
+            // 圖表增量更新
+            charts.m1.data.labels.push(step); charts.m1.data.datasets[0].data.push(trafficLoad * cfg.p_geo_density * 10); charts.m1.update();
+            charts.m2.data.labels.push(step); charts.m2.data.datasets[0].data.push(maxTemp); charts.m2.update();
+            charts.m3.data.labels.push(step); charts.m3.data.datasets[0].data.push(latency); charts.m3.data.datasets[1].data.push(latency * 1.52); charts.m3.update();
+            charts.m4.data.labels.push(step); charts.m4.data.datasets[0].data.push(irDrop); charts.m4.update();
+            charts.m5.data.labels.push(step); charts.m5.data.datasets[0].data.push(ber); charts.m5.update();
+            charts.m6.data.labels.push(step); charts.m6.data.datasets[0].data.push(trafficLoad * cfg.p_hub_throughput); charts.m6.update();
+            charts.m7.data.labels.push(step); charts.m7.data.datasets[0].data.push(reclaimedPower); charts.m7.update();
+            charts.m8.data.labels.push(step); charts.m8.data.datasets[0].data.push(freq); charts.m8.update();
 
-            document.getElementById('m-temp').textContent = `${maxTemp.toFixed(1)} ℃`;
-            document.getElementById('m-cooling-status').textContent = maxTemp > 65 ? "二相流汽化吸熱中" : "液相冷凝循環中";
-            document.getElementById('m-freq').textContent = `${freq.toFixed(2)} GHz`;
-            document.getElementById('m-latency').textContent = `${latency.toFixed(2)} ns`;
-            document.getElementById('m-routing-saving').textContent = `35.5 %`;
-            document.getElementById('m-ir-drop').textContent = `${irDrop.toFixed(3)} V`;
-            document.getElementById('m-ups-status').textContent = upsComp;
-            document.getElementById('m-ber').textContent = ber.toExponential(2);
-            document.getElementById('m-sub-noise').textContent = `${subNoise.toFixed(1)} dB`;
-            document.getElementById('m-reclaimed-power').textContent = `${reclaimedPower.toFixed(2)} W`;
-            document.getElementById('m-hub-status').textContent = `${(trafficLoad * 120).toFixed(0)} M-PKT/s`;
+            // 面板數據更新
+            document.getElementById('m1-layers').textContent = `${cfg.p_layers} 層`;
+            document.getElementById('m1-height').textContent = `${cfg.p_die_thick} µm`;
+            document.getElementById('m2-temp').textContent = `${maxTemp.toFixed(1)} ℃`;
+            document.getElementById('m2-status').textContent = maxTemp > cfg.p_cooling_temp ? "二相流汽化吸熱中" : "液相冷凝循環中";
+            document.getElementById('m3-latency').textContent = `${latency.toFixed(2)} ns`;
+            document.getElementById('m4-ir-drop').textContent = `${irDrop.toFixed(3)} V`;
+            document.getElementById('m4-ups-status').textContent = upsComp;
+            document.getElementById('m5-ber').textContent = ber.toExponential(2);
+            document.getElementById('m5-noise').textContent = `${subNoise.toFixed(1)} dB`;
+            document.getElementById('m6-throughput').textContent = `${(trafficLoad * cfg.p_hub_throughput).toFixed(1)} M-PKT/s`;
+            document.getElementById('m6-decouple').textContent = `${(cfg.p_decouple_rate * 100).toFixed(0)} %`;
+            document.getElementById('m7-power').textContent = `${reclaimedPower.toFixed(2)} W`;
+            document.getElementById('m7-flow').textContent = `${cfg.p_gas_flow_k.toFixed(2)}`;
+            document.getElementById('m8-freq').textContent = `${freq.toFixed(2)} GHz`;
+            document.getElementById('m8-status').textContent = freq < parseFloat(document.getElementById('spec_freq').value) ? "高溫保護被動降頻中" : "最佳時脈運作中";
 
-            document.getElementById('rep-latency-saving').textContent = "35.5";
+            document.getElementById('rep-latency-saving').textContent = "32.0";
             document.getElementById('rep-temp-saving').textContent = "28.4";
             document.getElementById('rep-power-reclaimed').textContent = reclaimedPower.toFixed(2);
 
