@@ -1,0 +1,8 @@
+{
+    "timestamp": "2026-09-27",
+    "version": "IEEE-IRDS-AUTO-2026-09-27",
+    "tsv_latency_base_ns": 3.8,
+    "thermal_resistance_k_w": 0.32,
+    "ir_drop_baseline_v": 0.08,
+    "optical_ber_baseline": 0.0001
+}
