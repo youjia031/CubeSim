@@ -35,6 +35,12 @@
                 radial-gradient(circle at 90% 90%, rgba(168, 85, 247, 0.08) 0%, transparent 40%);
         }
 
+        /* 隱藏全域預設滾動條，讓 UI 乾淨不被吃空間 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 240, 255, 0.3); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
         #slider-container {
             width: 100vw;
             height: 100vh;
@@ -48,7 +54,7 @@
             flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            padding: 1.5rem 2rem;
+            padding: 1.2rem 1.8rem;
             position: relative;
             overflow-y: auto;
         }
@@ -58,14 +64,14 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--panel-border);
-            padding-bottom: 0.8rem;
-            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            margin-bottom: 0.8rem;
             flex-wrap: wrap;
             gap: 10px;
         }
 
         .page-title {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--primary);
             text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
@@ -96,17 +102,17 @@
             border: 1px solid var(--panel-border);
             backdrop-filter: blur(16px);
             border-radius: 12px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.8rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
         }
 
         .switch-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 0.8rem;
         }
 
@@ -131,8 +137,8 @@
 
         .slider-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 1rem 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 0.8rem 1.2rem;
         }
 
         .control-group {
@@ -140,7 +146,7 @@
             flex-direction: column;
             gap: 0.4rem;
             background: rgba(0, 0, 0, 0.25);
-            padding: 0.7rem 0.9rem;
+            padding: 0.6rem 0.8rem;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
@@ -194,18 +200,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8rem 0;
+            padding: 0.6rem 0;
             margin-top: auto;
         }
 
         .btn {
-            padding: 0.55rem 1.4rem;
+            padding: 0.5rem 1.2rem;
             border: 1px solid var(--primary);
             background: rgba(0, 240, 255, 0.1);
             color: var(--primary);
             border-radius: 6px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -221,25 +227,27 @@
         .btn-commit { border-color: var(--accent-green); color: var(--accent-green); background: rgba(16, 185, 129, 0.15); }
         .btn-commit:hover { background: var(--accent-green); color: #000; box-shadow: 0 0 18px rgba(16, 185, 129, 0.5); }
 
+        /* 🌟 修復 1：Tab Bar 自動換行不被吃掉空間 */
         .tab-bar {
             display: flex;
+            flex-wrap: wrap; /* 允許自動換行，解決橫向擠壓問題 */
             gap: 6px;
             border-bottom: 1px solid var(--panel-border);
             padding-bottom: 8px;
-            margin-bottom: 12px;
-            overflow-x: auto;
-            white-space: nowrap;
+            margin-bottom: 10px;
+            width: 100%;
         }
 
         .tab-btn {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-muted);
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 6px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             cursor: pointer;
             white-space: nowrap;
+            transition: all 0.2s ease-in-out;
         }
 
         .tab-btn.active {
@@ -247,16 +255,16 @@
             color: var(--primary);
             background: rgba(0, 240, 255, 0.15);
             font-weight: bold;
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
         }
 
-        .tab-content { display: none; flex-direction: column; gap: 1rem; width: 100%; }
+        .tab-content { display: none; flex-direction: column; gap: 0.8rem; width: 100%; }
         .tab-content.active { display: flex; }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 1rem;
-            min-height: 380px;
             width: 100%;
         }
 
@@ -268,35 +276,35 @@
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 10px;
-            padding: 1rem;
+            padding: 0.8rem;
             display: flex;
             flex-direction: column;
             position: relative;
-            min-height: 340px;
+            height: 320px; /* 固定高度防止擠壓 */
             width: 100%;
         }
 
-        .canvas-container { flex-grow: 1; position: relative; width: 100%; height: 100%; min-height: 260px; }
+        .canvas-container { flex-grow: 1; position: relative; width: 100%; height: 100%; min-height: 220px; }
 
         .metrics-sidebar {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 10px;
-            padding: 1rem;
+            padding: 0.8rem;
             display: flex;
             flex-direction: column;
-            gap: 0.8rem;
+            gap: 0.6rem;
         }
 
         .metric-card {
             background: rgba(0, 0, 0, 0.3);
             border-left: 3px solid var(--primary);
-            padding: 0.7rem;
+            padding: 0.6rem;
             border-radius: 0 6px 6px 0;
         }
 
         .metric-card-title { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; }
-        .metric-card-value { font-size: 1.2rem; font-family: monospace; font-weight: bold; color: #fff; margin-top: 2px; }
+        .metric-card-value { font-size: 1.1rem; font-family: monospace; font-weight: bold; color: #fff; margin-top: 2px; }
 
         .modal-overlay {
             position: fixed;
@@ -311,11 +319,11 @@
         .modal-content {
             width: 92vw; height: 88vh;
             background: var(--panel-bg); border: 1px solid var(--panel-border);
-            border-radius: 16px; display: flex; flex-direction: column; padding: 1.5rem;
+            border-radius: 16px; display: flex; flex-direction: column; padding: 1.2rem;
         }
-        .log-table-wrapper { flex-grow: 1; overflow: auto; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.82rem; }
-        th, td { padding: 8px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
+        .log-table-wrapper { flex-grow: 1; overflow: auto; margin-top: 0.8rem; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.8rem; }
+        th, td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: left; }
         th { background: rgba(0, 240, 255, 0.12); color: var(--primary); position: sticky; top: 0; backdrop-filter: blur(4px); }
     </style>
 </head>
@@ -565,7 +573,7 @@
             </div>
         </div>
 
-        <!-- STEP 9 -->
+        <!-- STEP 9 (已優化版面) -->
         <div class="step-page" id="step-9">
             <div class="page-header">
                 <div class="page-title" data-i18n="s9_title">📊 Step 9: 3D Cube 極致運算渲染與全模組數據評估中心 (Analytics Center)</div>
@@ -575,6 +583,7 @@
                 </div>
             </div>
 
+            <!-- Tab 列（已加入 flex-wrap 解決變形與吃掉空間） -->
             <div class="tab-bar">
                 <button class="tab-btn active" onclick="switchTab('tab-m1', this)" data-i18n="t1">1. 幾何與六面體</button>
                 <button class="tab-btn" onclick="switchTab('tab-m2', this)" data-i18n="t2">2. 相變氣/液冷</button>
@@ -587,6 +596,7 @@
                 <button class="tab-btn" style="border-color: var(--accent-yellow); color: var(--accent-yellow);" onclick="switchTab('tab-benchmark', this)" data-i18n="t9">🏆 3D Cube 總對比報告</button>
             </div>
 
+            <!-- Tab 1 ~ 8 -->
             <div class="tab-content active" id="tab-m1"><div class="dashboard-grid"><div class="chart-box"><div class="canvas-container"><canvas id="chartM1"></canvas></div></div><div class="metrics-sidebar"><div class="metric-card"><div class="metric-card-title" data-i18n="m1_c1">晶片堆疊總層數</div><div class="metric-card-value" id="m1-layers">-- 層</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m1_c2">四柱空心支架層高</div><div class="metric-card-value" id="m1-height">-- µm</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m1_c3">6-Face 幾何散熱增益</div><div class="metric-card-value" id="m1-gain" style="color: var(--accent-green);">+25.0 %</div></div></div></div></div>
             <div class="tab-content" id="tab-m2"><div class="dashboard-grid"><div class="chart-box"><div class="canvas-container"><canvas id="chartM2"></canvas></div></div><div class="metrics-sidebar"><div class="metric-card"><div class="metric-card-title" data-i18n="m2_c1">最高樓層溫度 (Max Temp)</div><div class="metric-card-value" id="m2-temp">-- ℃</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m2_c2">二相流汽化冷卻狀態</div><div class="metric-card-value" id="m2-status" style="font-size: 0.95rem; color: var(--primary);">--</div></div></div></div></div>
             <div class="tab-content" id="tab-m3"><div class="dashboard-grid"><div class="chart-box"><div class="canvas-container"><canvas id="chartM3"></canvas></div></div><div class="metrics-sidebar"><div class="metric-card" style="border-color: var(--secondary);"><div class="metric-card-title" data-i18n="m3_c1">平均時序延遲 (Average Latency)</div><div class="metric-card-value" id="m3-latency">-- ns</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m3_c2">對角線捷徑距離縮減率</div><div class="metric-card-value" id="m3-saving" style="color: var(--accent-green);">32.0 %</div></div></div></div></div>
@@ -596,28 +606,28 @@
             <div class="tab-content" id="tab-m7"><div class="dashboard-grid"><div class="chart-box"><div class="canvas-container"><canvas id="chartM7"></canvas></div></div><div class="metrics-sidebar"><div class="metric-card"><div class="metric-card-title" data-i18n="m7_c1">自由電子回收能效</div><div class="metric-card-value" id="m7-power" style="color: var(--accent-green);">-- W</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m7_c2">定向氣流驅趕效率</div><div class="metric-card-value" id="m7-flow">--</div></div></div></div></div>
             <div class="tab-content" id="tab-m8"><div class="dashboard-grid"><div class="chart-box"><div class="canvas-container"><canvas id="chartM8"></canvas></div></div><div class="metrics-sidebar"><div class="metric-card"><div class="metric-card-title" data-i18n="m8_c1">即時運作時脈 (Clock)</div><div class="metric-card-value" id="m8-freq">-- GHz</div></div><div class="metric-card"><div class="metric-card-title" data-i18n="m8_c2">被動自動降頻觸發狀態</div><div class="metric-card-value" id="m8-status" style="font-size: 0.95rem; color: var(--accent-yellow);">--</div></div></div></div></div>
 
-            <!-- Tab 9 -->
+            <!-- Tab 9: 總對比頁面 -->
             <div class="tab-content" id="tab-benchmark">
-                <div style="display: flex; flex-direction: column; gap: 1.5rem; width: 100%;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; width: 100%;">
-                        <div class="chart-box">
-                            <div style="font-weight: bold; color: var(--primary); margin-bottom: 8px;" data-i18n="radar_title">8 大模組極限物理評估八邊形雷達圖 (Octagon Radar)</div>
+                <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; width: 100%;">
+                        <div class="chart-box" style="height: 280px;">
+                            <div style="font-weight: bold; color: var(--primary); margin-bottom: 6px; font-size: 0.9rem;" data-i18n="radar_title">8 大模組極限物理評估八邊形雷達圖 (Octagon Radar)</div>
                             <div class="canvas-container"><canvas id="chartRadar"></canvas></div>
                         </div>
-                        <div class="chart-box" style="gap: 0.8rem;">
-                            <div style="font-weight: bold; color: var(--accent-yellow);" data-i18n="summary_title">專題突破亮點綜合評估總結</div>
-                            <div style="font-size: 0.88rem; line-height: 1.8; color: var(--text-muted);" id="summary-desc">
-                                <!-- JS 動態無縫生成中英文總結 -->
+                        <div class="chart-box" style="height: 280px; gap: 0.6rem;">
+                            <div style="font-weight: bold; color: var(--accent-yellow); font-size: 0.9rem;" data-i18n="summary_title">專題突破亮點綜合評估總結</div>
+                            <div style="font-size: 0.82rem; line-height: 1.6; color: var(--text-muted);" id="summary-desc">
+                                <!-- JS 動態生成中英文總結 -->
                             </div>
                             <button class="btn" style="margin-top: auto; justify-content: center;" onclick="toggleModal(true)" data-i18n="btn_view_logs">檢視完整 60-Step 高密度日誌表格</button>
                         </div>
                     </div>
 
                     <div class="module-card">
-                        <div style="font-weight: bold; color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;" data-i18n="tbl_title">
+                        <div style="font-weight: bold; color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.4rem; font-size: 0.9rem;" data-i18n="tbl_title">
                             📋 3D Cube 6-Face 架構 vs. 傳統 2.5D/3D TSV 架構全 8 模組對比指標數據表
                         </div>
-                        <div class="log-table-wrapper" style="margin-top: 0;">
+                        <div class="log-table-wrapper" style="margin-top: 0; max-height: 220px;">
                             <table>
                                 <thead>
                                     <tr>
@@ -629,7 +639,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="comparison-table-body">
-                                    <!-- JS 動態生成中英文對比表格 -->
+                                    <!-- JS 動態生成 -->
                                 </tbody>
                             </table>
                         </div>
@@ -665,50 +675,26 @@
         const I18N = {
             zh: {
                 step0_title: "⚙️ Step 0: 目標架構物理規格配置與自動演算 (Spec Engine)",
-                preset_custom: "-- 自訂規格 (Custom) --",
-                preset_ai: "AI 高效能運算 Cube (500W TDP)",
-                preset_auto: "車用/航太高可靠 Cube (150W TDP)",
-                preset_mobile: "行動邊緣運算 Edge Cube (35W TDP)",
-                bot_status_label: "🤖 國際標準自動化同步中樞 (Automated IEEE Benchmark Sync)",
-                bot_status_desc: "已自動連結每日 Bot 產生的 standards.json，灰色對比虛線隨時保持在國際最新半導體標準。",
+                preset_custom: "-- 自訂規格 (Custom) --", preset_ai: "AI 高效能運算 Cube (500W TDP)", preset_auto: "車用/航太高可靠 Cube (150W TDP)", preset_mobile: "行動邊緣運算 Edge Cube (35W TDP)",
+                bot_status_label: "🤖 國際標準自動化同步中樞 (Automated IEEE Benchmark Sync)", bot_status_desc: "已自動連結每日 Bot 產生的 standards.json，灰色對比虛線隨時保持在國際最新半導體標準。",
                 spec_desc: "💡 請輸入晶片設計目標規格，系統將自動推算 8 大物理模組對應參數：",
-                spec_tdp: "目標熱設計功耗 Target TDP (Watt)",
-                spec_size: "Cube 體積邊長 Cube Edge Size (mm)",
-                spec_freq: "目標工作時脈 Operating Clock (GHz)",
-                spec_layers: "3D 垂直堆疊總層數 3D Layers",
-                spec_noise: "預期環境光雜訊 Ambient Optical Noise (dB)",
-                spec_routing: "八向斜線優化目標 Diagonal Routing Gain (%)",
-                btn_auto_apply: "根據規格自動推算並套用 ⚡",
-                btn_next_step1: "前往 Step 1 檢視/微調參數 ➔",
-                btn_reset: "重置本模組",
-                btn_prev: "⬅ 上一頁",
-                btn_next: "下一頁 ➔",
-                btn_commit: "確認設定並進階到極致運算渲染面板 ⚡",
-                btn_export: "匯出 Full CSV 數據",
-                btn_reconfig: "⬅ 重設參數",
-                s1_title: "🌐 Step 1: 3D 體積與六面體異質拓撲系統 (3D Volume & 6-Face Topology)",
-                s1_sw1: "啟用體積功耗積壓發熱模型", s1_sw2: "啟用 6-Face 全方位立體 I/O 散熱", s1_sw3: "啟用四柱分離物理隔離結構",
+                spec_tdp: "目標熱設計功耗 Target TDP (Watt)", spec_size: "Cube 體積邊長 Cube Edge Size (mm)", spec_freq: "目標工作時脈 Operating Clock (GHz)", spec_layers: "3D 垂直堆疊總層數 3D Layers", spec_noise: "預期環境光雜訊 Ambient Optical Noise (dB)", spec_routing: "八向斜線優化目標 Diagonal Routing Gain (%)",
+                btn_auto_apply: "根據規格自動推算並套用 ⚡", btn_next_step1: "前往 Step 1 檢視/微調參數 ➔", btn_reset: "重置本模組", btn_prev: "⬅ 上一頁", btn_next: "下一頁 ➔", btn_commit: "確認設定並進階到極致運算渲染面板 ⚡", btn_export: "匯出 Full CSV 數據", btn_reconfig: "⬅ 重設參數",
+                s1_title: "🌐 Step 1: 3D 體積與六面體異質拓撲系統 (3D Volume & 6-Face Topology)", s1_sw1: "啟用體積功耗積壓發熱模型", s1_sw2: "啟用 6-Face 全方位立體 I/O 散熱", s1_sw3: "啟用四柱分離物理隔離結構",
                 s1_p1: "1-1 縱向 Die 堆疊層數 (p_layers)", s1_p2: "1-2 體積熱密度積壓係數 (p_geo_density)", s1_p3: "1-3 層間介面熱阻阻抗 (p_inter_r)", s1_p4: "1-4 支撐柱空心結構高度 (p_die_thick)", s1_p5: "1-5 矽基底熱導率 Conductivity (p_si_cond)",
-                s2_title: "🌬️ Step 2: 二相流汽液相變冷卻模組 (Two-Phase Phase Change Cooling)",
-                s2_sw1: "啟用二相流汽化吸熱演算", s2_sw2: "啟用雙微型閥門動態壓力調節", s2_sw3: "啟用封裝外獨立輔助散熱驅動",
+                s2_title: "🌬️ Step 2: 二相流汽液相變冷卻模組 (Two-Phase Phase Change Cooling)", s2_sw1: "啟用二相流汽化吸熱演算", s2_sw2: "啟用雙微型閥門動態壓力調節", s2_sw3: "啟用封裝外獨立輔助散熱驅動",
                 s2_p1: "2-1 汽化臨界溫度 (p_cooling_temp)", s2_p2: "2-2 閥門流量導通係數 (p_valve_k)", s2_p3: "2-3 熱電轉換導熱效率 (p_tec_eff)", s2_p4: "2-4 潛熱吸熱流體係數 (p_latent_k)", s2_p5: "2-5 冷凝液體回流速率 (p_reflux_rate)",
-                s3_title: "🚦 Step 3: 八向斜向立體配線拓撲模組 (8-Direction Diagonal Interconnect)",
-                s3_sw1: "啟用 3D 時脈訊號動態調度", s3_sw2: "啟用八向對角線斜向配線捷徑", s3_sw3: "啟用單向電晶體閘極 (消除反射波)",
+                s3_title: "🚦 Step 3: 八向斜向立體配線拓撲模組 (8-Direction Diagonal Interconnect)", s3_sw1: "啟用 3D 時脈訊號動態調度", s3_sw2: "啟用八向對角線斜向配線捷徑", s3_sw3: "啟用單向電晶體閘極 (消除反射波)",
                 s3_p1: "3-1 佇列擁塞延遲閾值 (p_traffic_th)", s3_p2: "3-2 對角線/TSV 傳送速度增益 (p_tsv_speed)", s3_p3: "3-3 高溫阻抗熱劣化係數 (p_imp_factor)", s3_p4: "3-4 傳輸佇列衝擊容量 (p_queue_size)", s3_p5: "3-5 節點交織固定延遲 (p_cross_delay)",
-                s4_title: "⚡ Step 4: 埋入式雙電源母線與瞬態壓降補償 (Embedded Dual Bus & UPS)",
-                s4_sw1: "啟用電位差動態功耗放電補償", s4_sw2: "啟用底層粗導線母線低阻抗分流", s4_sw3: "啟用晶片內建瞬態 UPS 應急電源",
+                s4_title: "⚡ Step 4: 埋入式雙電源母線與瞬態壓降補償 (Embedded Dual Bus & UPS)", s4_sw1: "啟用電位差動態功耗放電補償", s4_sw2: "啟用底層粗導線母線低阻抗分流", s4_sw3: "啟用晶片內建瞬態 UPS 應急電源",
                 s4_p1: "4-1 電位補償放電比例 (p_power_comp)", s4_p2: "4-2 應急 UPS 維持時間 (p_backup_time)", s4_p3: "4-3 漏電流熱耦合正回饋率 (p_leak_alpha)", s4_p4: "4-4 雙迴路負載平衡閾值 (p_load_bal)", s4_p5: "4-5 VDD 基準工作電壓 (p_vdd_volt)",
-                s5_title: "🚀 Step 5: 波長散射光波導與減法消除噪訊 (Scattering Waveguide Optics)",
-                s5_sw1: "啟用光學波導傳輸模型", s5_sw2: "啟用特定波長區間散射編碼", s5_sw3: "啟用光學加減法消除環境白光雜訊",
+                s5_title: "🚀 Step 5: 波長散射光波導與減法消除噪訊 (Scattering Waveguide Optics)", s5_sw1: "啟用光學波導傳輸模型", s5_sw2: "啟用特定波長區間散射編碼", s5_sw3: "啟用光學加減法消除環境白光雜訊",
                 s5_p1: "5-1 環境白光雜訊比例 (p_opt_noise)", s5_p2: "5-2 減法除噪仲裁容錯率 (p_agent_tol)", s5_p3: "5-3 波長散射區間調變寬度 (p_opt_interval)", s5_p4: "5-4 光波導衰減傳播係數 (p_opt_atten)", s5_p5: "5-5 解碼重傳時序懲罰 (p_retrans_p)",
-                s6_title: "🧠 Step 6: 中央封包解封裝與熱解耦中樞 (Packet Decapsulation Hub)",
-                s6_sw1: "啟用 Centralized Control Hub 中樞調度", s6_sw2: "啟用任務分散熱點空間解耦減熱",
+                s6_title: "🧠 Step 6: 中央封包解封裝與熱解耦中樞 (Packet Decapsulation Hub)", s6_sw1: "啟用 Centralized Control Hub 中樞調度", s6_sw2: "啟用任務分散熱點空間解耦減熱",
                 s6_p1: "6-1 封包即時解/封裝吞吐極限 (p_hub_throughput)", s6_p2: "6-2 空間去耦合熱點轉移率 (p_decouple_rate)",
-                s7_title: "⚡ Step 7: 布朗運動電子定向氣流功耗回收 (Brownian Electron Recovery)",
-                s7_sw1: "啟用微型氣流驅趕與自由電子回收區",
+                s7_title: "⚡ Step 7: 布朗運動電子定向氣流功耗回收 (Brownian Electron Recovery)", s7_sw1: "啟用微型氣流驅趕與自由電子回收區",
                 s7_p1: "7-1 定向微流體驅趕效率 (p_gas_flow_k)", s7_p2: "7-2 自由電子動能電能回收率 (p_electron_eff)",
-                s8_title: "🌡️ Step 8: 熱耦合被動自動時脈平衡系統 (Thermo-Passive Clock Balancing)",
-                s8_sw1: "啟用高溫被動自動降頻與低溫時脈恢復",
+                s8_title: "🌡️ Step 8: 熱耦合被動自動時脈平衡系統 (Thermo-Passive Clock Balancing)", s8_sw1: "啟用高溫被動自動降頻與低溫時脈恢復",
                 s8_p1: "8-1 物理降頻觸發臨界點 (p_freq_down_temp)", s8_p2: "8-2 時脈調整熱敏陡度 (p_freq_slope)",
                 s9_title: "📊 Step 9: 3D Cube 極致運算渲染與全模組數據評估中心 (Analytics Center)",
                 t1: "1. 幾何與六面體", t2: "2. 相變氣/液冷", t3: "3. 八向斜線拓撲", t4: "4. 雙電網與 UPS", t5: "5. 散射光學除噪", t6: "6. 控制大廳調度", t7: "7. 自由電子回收", t8: "8. 被動時脈平衡", t9: "🏆 3D Cube 總對比報告",
@@ -720,59 +706,33 @@
                 m6_c1: "控制大廳即時吞吐量", m6_c2: "空間去耦合減熱比率",
                 m7_c1: "自由電子回收能效", m7_c2: "定向氣流驅趕效率",
                 m8_c1: "即時運作時脈 (Clock)", m8_c2: "被動自動降頻觸發狀態",
-                radar_title: "8 大模組極限物理評估八邊形雷達圖 (Octagon Radar)",
-                summary_title: "專題突破亮點綜合評估總結",
-                btn_view_logs: "檢視完整 60-Step 高密度日誌表格",
+                radar_title: "8 大模組極限物理評估八邊形雷達圖 (Octagon Radar)", summary_title: "專題突破亮點綜合評估總結", btn_view_logs: "檢視完整 60-Step 高密度日誌表格",
                 tbl_title: "📋 3D Cube 6-Face 架構 vs. 傳統 2.5D/3D TSV 架構全 8 模組對比指標數據表",
                 th1: "測試模組 (Module)", th2: "關鍵量化評估指標 (KPI)", th3: "傳統 2.5D/3D TSV 晶片", th4: "本專題 3D Cube 6-Face 晶片", th5: "物理優勢 / 提升幅度的評估",
                 modal_title: "高密度物理模擬日誌 (Full 60-Step Matrix)", btn_close: "關閉 (ESC)"
             },
             en: {
                 step0_title: "⚙️ Step 0: Target Architecture Physical Spec Config & Engine",
-                preset_custom: "-- Custom Spec --",
-                preset_ai: "HPC AI Supercomputing Cube (500W TDP)",
-                preset_auto: "Automotive/Aerospace High-Reliability Cube (150W TDP)",
-                preset_mobile: "Mobile Edge Computing Cube (35W TDP)",
-                bot_status_label: "🤖 Automated IEEE Benchmark Sync Hub",
-                bot_status_desc: "Linked to daily Bot standards.json. Gray dashed reference lines dynamically mirror IEEE standards.",
+                preset_custom: "-- Custom Spec --", preset_ai: "HPC AI Supercomputing Cube (500W TDP)", preset_auto: "Automotive/Aerospace High-Reliability Cube (150W TDP)", preset_mobile: "Mobile Edge Computing Cube (35W TDP)",
+                bot_status_label: "🤖 Automated IEEE Benchmark Sync Hub", bot_status_desc: "Linked to daily Bot standards.json. Gray dashed reference lines dynamically mirror IEEE standards.",
                 spec_desc: "💡 Enter chip target specifications to auto-calculate parameters across 8 physical modules:",
-                spec_tdp: "Target Thermal Design Power (TDP Watt)",
-                spec_size: "Cube Volume Edge Dimension (mm)",
-                spec_freq: "Target Operating Clock Frequency (GHz)",
-                spec_layers: "3D Vertical Die Layer Count",
-                spec_noise: "Ambient Optical Interference Noise (dB)",
-                spec_routing: "8-Dir Diagonal Routing Gain Target (%)",
-                btn_auto_apply: "Auto-Calculate & Apply All Specs ⚡",
-                btn_next_step1: "Proceed to Step 1: Fine-Tune ➔",
-                btn_reset: "Reset Module",
-                btn_prev: "⬅ Previous",
-                btn_next: "Next ➔",
-                btn_commit: "Commit & Execute Ultra Simulation Panel ⚡",
-                btn_export: "Export Full CSV Data",
-                btn_reconfig: "⬅ Reconfigure",
-                s1_title: "🌐 Step 1: 3D Volume & 6-Face Heterogeneous Topology",
-                s1_sw1: "Enable Volumetric Heat Density Accumulation", s1_sw2: "Enable 6-Face Full Omnidirectional I/O Heat Dissipation", s1_sw3: "Enable Quad-Pillar Mechanical Isolation Structure",
+                spec_tdp: "Target Thermal Design Power (TDP Watt)", spec_size: "Cube Volume Edge Dimension (mm)", spec_freq: "Target Operating Clock Frequency (GHz)", spec_layers: "3D Vertical Die Layer Count", spec_noise: "Ambient Optical Interference Noise (dB)", spec_routing: "8-Dir Diagonal Routing Gain Target (%)",
+                btn_auto_apply: "Auto-Calculate & Apply All Specs ⚡", btn_next_step1: "Proceed to Step 1: Fine-Tune ➔", btn_reset: "Reset Module", btn_prev: "⬅ Previous", btn_next: "Next ➔", btn_commit: "Commit & Execute Ultra Simulation Panel ⚡", btn_export: "Export Full CSV Data", btn_reconfig: "⬅ Reconfigure",
+                s1_title: "🌐 Step 1: 3D Volume & 6-Face Heterogeneous Topology", s1_sw1: "Enable Volumetric Heat Density Accumulation", s1_sw2: "Enable 6-Face Full Omnidirectional I/O Heat Dissipation", s1_sw3: "Enable Quad-Pillar Mechanical Isolation Structure",
                 s1_p1: "1-1 Vertical Die Stack Count (p_layers)", s1_p2: "1-2 Volumetric Heat Density Factor (p_geo_density)", s1_p3: "1-3 Interfacial Thermal Resistance (p_inter_r)", s1_p4: "1-4 Hollow Pillar Structural Height (p_die_thick)", s1_p5: "1-5 Substrate Silicon Conductivity (p_si_cond)",
-                s2_title: "🌬️ Step 2: Two-Phase Vapor-Liquid Phase Change Cooling System",
-                s2_sw1: "Enable Two-Phase Vaporization Latent Cooling", s2_sw2: "Enable Dual Micro-Valve Dynamic Pressure Regulation", s2_sw3: "Enable Auxiliary External Power Heat Drive",
+                s2_title: "🌬️ Step 2: Two-Phase Vapor-Liquid Phase Change Cooling System", s2_sw1: "Enable Two-Phase Vaporization Latent Cooling", s2_sw2: "Enable Dual Micro-Valve Dynamic Pressure Regulation", s2_sw3: "Enable Auxiliary External Power Heat Drive",
                 s2_p1: "2-1 Vaporization Threshold Temperature (p_cooling_temp)", s2_p2: "2-2 Valve Conductance Coefficient (p_valve_k)", s2_p3: "2-3 Thermoelectric Energy Efficiency (p_tec_eff)", s2_p4: "2-4 Latent Heat Absorption Coefficient (p_latent_k)", s2_p5: "2-5 Condensate Reflux Rate (p_reflux_rate)",
-                s3_title: "🚦 Step 3: 8-Directional Diagonal Interconnect Routing Topology",
-                s3_sw1: "Enable Dynamic 3D Clock Scheduling", s3_sw2: "Enable 8-Way Diagonal Bypass Routing Shortcuts", s3_sw3: "Enable Uni-Directional Gates (Eliminate Waves)",
+                s3_title: "🚦 Step 3: 8-Directional Diagonal Interconnect Routing Topology", s3_sw1: "Enable Dynamic 3D Clock Scheduling", s3_sw2: "Enable 8-Way Diagonal Bypass Routing Shortcuts", s3_sw3: "Enable Uni-Directional Gates (Eliminate Waves)",
                 s3_p1: "3-1 Congestion Latency Threshold (p_traffic_th)", s3_p2: "3-2 Diagonal/TSV Transmission Speed Gain (p_tsv_speed)", s3_p3: "3-3 High-Temp Impedance Thermal Degradation (p_imp_factor)", s3_p4: "3-4 Routing Queue Burst Capacity (p_queue_size)", s3_p5: "3-5 Cross-Junction Delay Penalty (p_cross_delay)",
-                s4_title: "⚡ Step 4: Embedded Dual Power Bus & Transient Voltage Compensation",
-                s4_sw1: "Enable Voltage-Difference Discharge Compensation", s4_sw2: "Enable Buried Power Bus Shunt Lines", s4_sw3: "Enable On-Chip Emergency Battery UPS Switch",
+                s4_title: "⚡ Step 4: Embedded Dual Power Bus & Transient Voltage Compensation", s4_sw1: "Enable Voltage-Difference Discharge Compensation", s4_sw2: "Enable Buried Power Bus Shunt Lines", s4_sw3: "Enable On-Chip Emergency Battery UPS Switch",
                 s4_p1: "4-1 Power Discharge Compensation Ratio (p_power_comp)", s4_p2: "4-2 Emergency UPS Backup Duration (p_backup_time)", s4_p3: "4-3 Leakage-Thermal Positive Feedback Rate (p_leak_alpha)", s4_p4: "4-4 Dual-Loop Load Balancing Threshold (p_load_bal)", s4_p5: "4-5 VDD Baseline Operating Voltage (p_vdd_volt)",
-                s5_title: "🚀 Step 5: Wavelength-Division Scattering Optics & Noise Filter",
-                s5_sw1: "Enable Optical Waveguide Transmission", s5_sw2: "Enable Selective Wavelength Band Scattering", s5_sw3: "Enable Subtractive Optical Ambient Noise Cancellation",
+                s5_title: "🚀 Step 5: Wavelength-Division Scattering Optics & Noise Filter", s5_sw1: "Enable Optical Waveguide Transmission", s5_sw2: "Enable Selective Wavelength Band Scattering", s5_sw3: "Enable Subtractive Optical Ambient Noise Cancellation",
                 s5_p1: "5-1 Ambient Light Noise Ratio (p_opt_noise)", s5_p2: "5-2 Subtractive Filtering Arbitration Tolerance (p_agent_tol)", s5_p3: "5-3 Scattering Interval Bandwidth (p_opt_interval)", s5_p4: "5-4 Waveguide Attenuation Coefficient (p_opt_atten)", s5_p5: "5-5 Retransmission Latency Penalty (p_retrans_p)",
-                s6_title: "🧠 Step 6: Centralized Packet Decapsulation/Encapsulation Hub",
-                s6_sw1: "Enable Centralized Control Hub Arbitration", s6_sw2: "Enable Spatial Heat Decoupling & Distribution",
+                s6_title: "🧠 Step 6: Centralized Packet Decapsulation/Encapsulation Hub", s6_sw1: "Enable Centralized Control Hub Arbitration", s6_sw2: "Enable Spatial Heat Decoupling & Distribution",
                 s6_p1: "6-1 Real-time Packet Decap/Encap Throughput Limit (p_hub_throughput)", s6_p2: "6-2 Spatial Heat Decoupling Transfer Ratio (p_decouple_rate)",
-                s7_title: "⚡ Step 7: Brownian Electro-Kinetic Directional Energy Recovery",
-                s7_sw1: "Enable Micro-Gas Flow Electron Sweep & Recovery",
+                s7_title: "⚡ Step 7: Brownian Electro-Kinetic Directional Energy Recovery", s7_sw1: "Enable Micro-Gas Flow Electron Sweep & Recovery",
                 s7_p1: "7-1 Fluidic Directional Sweep Efficiency (p_gas_flow_k)", s7_p2: "7-2 Electron Kinetic-to-Electric Conversion Rate (p_electron_eff)",
-                s8_title: "🌡️ Step 8: Thermo-Coupled Passive Frequency Self-Balancing System",
-                s8_sw1: "Enable Thermo-Passive Auto Clock Throttling & Recovery",
+                s8_title: "🌡️ Step 8: Thermo-Coupled Passive Frequency Self-Balancing System", s8_sw1: "Enable Thermo-Passive Auto Clock Throttling & Recovery",
                 s8_p1: "8-1 Thermal Throttling Trigger Threshold (p_freq_down_temp)", s8_p2: "8-2 Frequency Adjustment Thermal Slope (p_freq_slope)",
                 s9_title: "📊 Step 9: 3D Cube Performance Analytics & Assessment Center",
                 t1: "1. 3D Volume & Topology", t2: "2. Two-Phase Cooling", t3: "3. Diagonal Routing", t4: "4. Dual Power & UPS", t5: "5. Scattering Optics", t6: "6. Control Hub", t7: "7. Electron Recovery", t8: "8. Passive Balancing", t9: "🏆 3D Cube Report",
@@ -784,9 +744,7 @@
                 m6_c1: "Hub Real-time Throughput", m6_c2: "Spatial Heat Decoupling Ratio",
                 m7_c1: "Electron Energy Harvesting", m7_c2: "Directional Sweep Efficiency",
                 m8_c1: "Operating Clock Speed", m8_c2: "Passive Throttling Status",
-                radar_title: "8-Module Octagon Radar Assessment Chart",
-                summary_title: "Key Breakthrough Summary & KPI Evaluation",
-                btn_view_logs: "View Full 60-Step Log Matrix Table",
+                radar_title: "8-Module Octagon Radar Assessment Chart", summary_title: "Key Breakthrough Summary & KPI Evaluation", btn_view_logs: "View Full 60-Step Log Matrix Table",
                 tbl_title: "📋 3D Cube 6-Face Architecture vs. Traditional 2.5D/3D TSV Benchmark Matrix",
                 th1: "Module", th2: "Key Performance Indicator (KPI)", th3: "Traditional 2.5D/3D TSV", th4: "Proposed 3D Cube 6-Face", th5: "Physical Advantage / Gains",
                 modal_title: "High-Density Physical Simulation Matrix Log (60 Steps)", btn_close: "Close (ESC)"
@@ -800,7 +758,7 @@
                 ["3. 八向斜線 Diagonal Routing", "跨層傳輸距離與延遲 Latency", "曼哈頓 90 度折角 (延遲高)", "八向斜向對角線 + Bypass TSV", "時序延遲降低 32.0%"],
                 ["4. 雙電網/UPS Dual Power & UPS", "瞬態電壓降 IR Drop 防護", "無 On-Chip UPS (壓降易錯亂)", "埋入式粗母線 + 物理 UPS 開關", "IR Drop 壓降減少 45.0%"],
                 ["5. 散射除噪 Scattering Waveguide", "強雜訊下誤碼率 Bit Error Rate", "10⁻³ (白光干擾時需頻繁重傳)", "特定波長散射 + 減法扣除白光", "BER 拉低至 10⁻⁷ 以下"],
-                ["6. 控制大廳 Control Hub", "封包解封裝吞吐量與熱點", "集中式演算法調度 (局部發熱高)", "Control Hub + 空間去耦合減熱", "吞吐量提升至 85+ M-PKT/s"],
+                ["6. 控制大廳 Control Hub", "封包解封裝吞吐量與熱點", "集中式演算法調度 (局部發熱高)", "Control Hub + 空間去耦合減熱", "吞吞量提升至 85+ M-PKT/s"],
                 ["7. 電子回收 Electron Recovery", "布朗運動自由電子處置", "轉化為雜訊干擾與無謂廢熱", "受控氣流驅趕 至留白區回收", "額外回收補給電力 (Watt)"],
                 ["8. 被動時脈 Passive Frequency", "高溫保護回應機制與時間", "依賴軟體演算法 (回應慢 0.5s)", "純物理感測被動自平衡 聯動頻率", "零延遲硬體級被動自平衡"]
             ],
@@ -819,7 +777,7 @@
         function toggleLanguage() {
             currentLang = currentLang === 'zh' ? 'en' : 'zh';
             updatePageLanguage();
-            if (charts.m1) commitAndSimulate(); // 重繪含最新語言標題的圖表
+            if (charts.m1) commitAndSimulate();
         }
 
         function updatePageLanguage() {
@@ -829,7 +787,6 @@
                 if (langData[key]) el.textContent = langData[key];
             });
 
-            // 渲染全動態中英文對比表格
             const tBody = document.getElementById('comparison-table-body');
             if (tBody) {
                 tBody.innerHTML = '';
@@ -969,7 +926,7 @@
             });
         }
 
-        // 🌟 核心修復：Tab 切換與 Chart.js 自動重新尺寸計算與渲染
+        // 🌟 Tab 切換防變形機制
         function switchTab(tabId, btnEl) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -978,7 +935,6 @@
             const targetTab = document.getElementById(tabId);
             if (targetTab) targetTab.classList.add('active');
 
-            // 觸發 Chart.js 強制適應最新容器尺寸，徹底避免渲染潰散或縮成一團
             setTimeout(() => {
                 Object.keys(charts).forEach(k => {
                     if (charts[k]) {
@@ -986,7 +942,7 @@
                         charts[k].update('none');
                     }
                 });
-            }, 50);
+            }, 60);
         }
 
         function toggleModal(show) {
@@ -1158,7 +1114,6 @@
             document.getElementById('m8-freq').textContent = `${freq.toFixed(2)} GHz`;
             document.getElementById('m8-status').textContent = freq < parseFloat(document.getElementById('spec_freq').value) ? (currentLang==='zh'?"高溫保護被動降頻中":"Throttling Active") : (currentLang==='zh'?"最佳時脈運作中":"Optimal Frequency");
 
-            // 動態更新 100% 雙語總結段落
             const summaryContainer = document.getElementById('summary-desc');
             if (summaryContainer) {
                 if (currentLang === 'zh') {
@@ -1170,10 +1125,10 @@
                     `;
                 } else {
                     summaryContainer.innerHTML = `
-                        <p>✅ <b>8-Dir Diagonal Interconnect</b>: Average latency reduced by <span style="color: var(--accent-green); font-weight: bold;">32.0%</span> compared to traditional TSV.</p>
-                        <p>✅ <b>Thermo-Passive Phase Cooling</b>: Peak temperature suppression improved by <span style="color: var(--primary); font-weight: bold;">28.4%</span> under extreme load.</p>
-                        <p>✅ <b>Brownian Electron Harvesting</b>: Reclaimed scattered electron energy up to <span style="color: var(--accent-yellow); font-weight: bold;">${reclaimedPower.toFixed(2)}</span> W.</p>
-                        <p>✅ <b>Subtractive Noise Cancellation</b>: Optical Bit Error Rate (BER) reduced by <span style="color: var(--secondary); font-weight: bold;">10⁴</span> orders of magnitude under noise.</p>
+                        <p>✅ <b>8-Dir Diagonal Interconnect</b>: Latency reduced by <span style="color: var(--accent-green); font-weight: bold;">32.0%</span> vs. TSV.</p>
+                        <p>✅ <b>Thermo-Passive Cooling</b>: Peak temp suppression improved by <span style="color: var(--primary); font-weight: bold;">28.4%</span>.</p>
+                        <p>✅ <b>Brownian Electron Harvesting</b>: Reclaimed energy up to <span style="color: var(--accent-yellow); font-weight: bold;">${reclaimedPower.toFixed(2)}</span> W.</p>
+                        <p>✅ <b>Noise Cancellation</b>: Optical BER reduced by <span style="color: var(--secondary); font-weight: bold;">10⁴</span> magnitude.</p>
                     `;
                 }
             }
