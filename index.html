@@ -9,8 +9,8 @@
     <style>
         :root {
             --bg-color: #0b0f19;
-            --panel-bg: rgba(20, 27, 45, 0.75);
-            --panel-border: rgba(0, 240, 255, 0.2);
+            --panel-bg: rgba(20, 27, 45, 0.85);
+            --panel-border: rgba(0, 240, 255, 0.25);
             --primary: #00f0ff;
             --primary-hover: #70f8ff;
             --secondary: #7000ff;
@@ -18,6 +18,7 @@
             --text-muted: #94a3b8;
             --accent-red: #ff3366;
             --accent-green: #00ff66;
+            --accent-gold: #ffcc00;
         }
 
         * {
@@ -30,18 +31,18 @@
         body, html {
             width: 100%;
             height: 100%;
-            overflow: hidden; /* 鎖死外層瀏覽器滾動條 */
+            overflow: hidden;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             background-image: 
-                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 85% 85%, rgba(112, 0, 255, 0.05) 0%, transparent 40%);
+                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(112, 0, 255, 0.08) 0%, transparent 45%);
         }
 
         /* 幻燈片全螢幕容器 */
         #slider-container {
-            width: 100vw;
+            width: 600vw;
             height: 100vh;
             display: flex;
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -54,28 +55,121 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 2.5rem 4rem;
+            padding: 2rem 3.5rem;
             position: relative;
+            box-sizing: border-box;
         }
 
-        /* 頁首標題 */
+        /* 頁首標題與導覽指示燈 */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid var(--panel-border);
-            padding-bottom: 1rem;
+            padding-bottom: 0.8rem;
         }
 
         .page-title {
-            font-size: 1.8rem;
+            font-size: 1.75rem;
             font-weight: 700;
             letter-spacing: 1px;
             color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.4);
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        .step-tracker {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tracker-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .tracker-dot.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 0 12px var(--primary);
+        }
+
+        .tracker-dot.completed {
+            background: rgba(0, 240, 255, 0.2);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* 智慧自動推算面板 */
+        .preset-banner {
+            background: rgba(112, 0, 255, 0.15);
+            border: 1px solid rgba(112, 0, 255, 0.4);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .preset-title {
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+
+        .preset-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .preset-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            color: var(--primary);
+            padding: 6px 12px;
+            font-family: monospace;
+            font-weight: bold;
+            width: 100px;
+            outline: none;
+            text-align: center;
+        }
+
+        .quick-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(0, 240, 255, 0.2);
+            border-color: var(--primary);
+            color: #fff;
         }
 
         /* 模組卡片內容區 */
@@ -84,23 +178,24 @@
             border: 1px solid var(--panel-border);
             backdrop-filter: blur(12px);
             border-radius: 12px;
-            padding: 2rem;
-            margin: 1.5rem 0;
+            padding: 1.5rem 2rem;
+            margin: 1rem 0;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1rem;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            overflow-y: auto;
         }
 
         .switch-container {
             display: flex;
             align-items: center;
             gap: 1rem;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             background: rgba(255, 255, 255, 0.03);
-            padding: 0.8rem 1.2rem;
+            padding: 0.75rem 1.2rem;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -116,25 +211,24 @@
         .slider-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem 2.5rem;
-            overflow-y: auto;
-            padding-right: 10px;
+            gap: 1.2rem 2.5rem;
+            padding-right: 5px;
         }
 
         .control-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 0.9rem 1.1rem;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
 
         .control-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-muted);
         }
 
@@ -142,7 +236,7 @@
             color: var(--primary);
             font-weight: bold;
             font-family: monospace;
-            font-size: 1.05rem;
+            font-size: 1rem;
         }
 
         input[type="range"] {
@@ -170,66 +264,97 @@
             background: #fff;
         }
 
-        /* 導覽按鈕列 */
+        /* 底部導覽按鈕列 */
         .nav-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .btn {
-            padding: 0.8rem 2rem;
+            padding: 0.8rem 2.2rem;
             border: 1px solid var(--primary);
-            background: rgba(0, 240, 255, 0.1);
+            background: rgba(0, 240, 255, 0.12);
             color: var(--primary);
-            border-radius: 6px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.25s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.15);
         }
 
         .btn:hover {
             background: var(--primary);
             color: #000;
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn-prev {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+        }
+
+        .btn-prev:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
         }
 
         .btn-reset {
-            border-color: rgba(255, 255, 255, 0.2);
-            color: var(--text-muted);
-            background: transparent;
+            border-color: rgba(255, 51, 102, 0.4);
+            color: var(--accent-red);
+            background: rgba(255, 51, 102, 0.08);
+            padding: 0.5rem 1.2rem;
+            font-size: 0.85rem;
         }
 
         .btn-reset:hover {
             border-color: var(--accent-red);
-            color: var(--accent-red);
-            background: rgba(255, 51, 102, 0.1);
-            box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+            color: #fff;
+            background: var(--accent-red);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.4);
         }
 
         .btn-commit {
             border-color: var(--accent-green);
             color: var(--accent-green);
-            background: rgba(0, 255, 102, 0.1);
+            background: rgba(0, 255, 102, 0.12);
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.15);
         }
 
         .btn-commit:hover {
             background: var(--accent-green);
             color: #000;
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.5);
         }
 
-        /* Step 6 運算面板佈局 */
+        .btn-csv {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+            background: rgba(255, 204, 0, 0.1);
+        }
+
+        .btn-csv:hover {
+            background: var(--accent-gold);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
+        }
+
+        /* Step 6 Dashboard Layout */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 2.2fr 1fr;
             grid-template-rows: 1fr 1fr;
-            gap: 1.5rem;
+            gap: 1.2rem;
             height: 100%;
         }
 
@@ -237,7 +362,7 @@
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            padding: 1rem;
+            padding: 1rem 1.2rem;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -254,11 +379,13 @@
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
+            max-width: 60%;
+            justify-content: flex-end;
         }
 
         .layer-btn {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: var(--text-muted);
             padding: 2px 8px;
             border-radius: 4px;
@@ -270,6 +397,7 @@
             border-color: var(--primary);
             color: var(--primary);
             background: rgba(0, 240, 255, 0.15);
+            font-weight: bold;
         }
 
         .canvas-container {
@@ -277,13 +405,14 @@
             position: relative;
             width: 100%;
             height: 100%;
+            min-height: 0;
         }
 
         .status-panel {
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -292,11 +421,11 @@
 
         .progress-bar-container {
             width: 100%;
-            height: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
             overflow: hidden;
-            margin-top: 5px;
+            margin-top: 6px;
         }
 
         .progress-bar {
@@ -307,41 +436,42 @@
         }
 
         .metrics-cards {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
         }
 
         .metric-card {
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 3px solid var(--primary);
-            padding: 1rem;
+            background: rgba(0, 0, 0, 0.35);
+            border-left: 4px solid var(--primary);
+            padding: 0.9rem;
             border-radius: 0 8px 8px 0;
         }
 
         .metric-card-title {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: var(--text-muted);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .metric-card-value {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-family: monospace;
             font-weight: bold;
             color: #fff;
             margin-top: 4px;
         }
 
-        /* 燈箱 Modal */
+        /* Modal Overlay */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(5, 8, 15, 0.85);
+            background: rgba(5, 8, 15, 0.88);
             backdrop-filter: blur(16px);
             z-index: 9999;
             display: flex;
@@ -358,14 +488,14 @@
         }
 
         .modal-content {
-            width: 90vw;
-            height: 85vh;
+            width: 92vw;
+            height: 88vh;
             background: var(--panel-bg);
             border: 1px solid var(--panel-border);
             border-radius: 16px;
             display: flex;
             flex-direction: column;
-            padding: 2rem;
+            padding: 1.8rem;
             box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
         }
 
@@ -373,7 +503,7 @@
             flex-grow: 1;
             overflow-y: auto;
             margin-top: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 8px;
         }
 
@@ -381,21 +511,22 @@
             width: 100%;
             border-collapse: collapse;
             font-family: monospace;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             text-align: left;
         }
 
         th, td {
-            padding: 10px 16px;
+            padding: 10px 14px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         th {
-            background: rgba(0, 240, 255, 0.1);
+            background: rgba(0, 240, 255, 0.12);
             color: var(--primary);
             position: sticky;
             top: 0;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(6px);
+            z-index: 10;
         }
 
         tr:nth-child(even) {
@@ -403,7 +534,7 @@
         }
 
         tr:hover {
-            background: rgba(0, 240, 255, 0.05);
+            background: rgba(0, 240, 255, 0.06);
         }
     </style>
 </head>
@@ -414,8 +545,34 @@
         <div class="step-page" id="step-1">
             <div class="page-header">
                 <div class="page-title">🌐 模組一：空間幾何與分層系統</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot active">1</div>
+                    <div class="tracker-dot">2</div>
+                    <div class="tracker-dot">3</div>
+                    <div class="tracker-dot">4</div>
+                    <div class="tracker-dot">5</div>
+                    <div class="tracker-dot">6</div>
+                </div>
                 <button class="btn btn-reset" onclick="resetModule(1)">重置本模組</button>
             </div>
+
+            <!-- 自動推算功能區塊 -->
+            <div class="preset-banner">
+                <div>
+                    <div class="preset-title">⚡ 智慧參數自動推算 (Smart Auto-Configuration)</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">輸入晶片目標功耗 (TDP Power)，系統自動精算 23 項跨模組最佳化參數</div>
+                </div>
+                <div class="preset-controls">
+                    <label style="font-size: 0.85rem; color: #fff;">目標 TDP (W):</label>
+                    <input type="number" id="target-tdp" class="preset-input" value="250" min="50" max="1000" step="10">
+                    <button class="quick-btn" style="border-color: var(--primary); color: var(--primary); font-weight: bold;" onclick="applyAutoCalculation()">自動推算並套用 ➔</button>
+                    <span style="color: rgba(255,255,255,0.2);">|</span>
+                    <button class="quick-btn" onclick="applyPreset('mobile')">行動低功耗 (60W)</button>
+                    <button class="quick-btn" onclick="applyPreset('balanced')">均衡工作站 (200W)</button>
+                    <button class="quick-btn" onclick="applyPreset('hpc')">極限 AI 晶片 (500W)</button>
+                </div>
+            </div>
+
             <div class="module-card">
                 <div class="switch-container">
                     <input type="checkbox" id="sw_geom" checked>
@@ -444,9 +601,10 @@
                     </div>
                 </div>
             </div>
+
             <div class="nav-footer">
-                <div></div>
-                <button class="btn" onclick="nextStep(2)">下一頁 ➔</button>
+                <div style="color: var(--text-muted); font-size: 0.88rem;">步驟 1 / 6</div>
+                <button class="btn" onclick="nextStep(2)">下一頁：相變液冷 ➔</button>
             </div>
         </div>
 
@@ -454,8 +612,17 @@
         <div class="step-page" id="step-2">
             <div class="page-header">
                 <div class="page-title">🌬️ 模組二：相變液冷與電子回收散熱</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot completed">1</div>
+                    <div class="tracker-dot active">2</div>
+                    <div class="tracker-dot">3</div>
+                    <div class="tracker-dot">4</div>
+                    <div class="tracker-dot">5</div>
+                    <div class="tracker-dot">6</div>
+                </div>
                 <button class="btn btn-reset" onclick="resetModule(2)">重置本模組</button>
             </div>
+
             <div class="module-card">
                 <div class="switch-container">
                     <input type="checkbox" id="sw_thermal" checked>
@@ -484,9 +651,11 @@
                     </div>
                 </div>
             </div>
+
             <div class="nav-footer">
-                <button class="btn" onclick="nextStep(1)">⬅ 上一頁</button>
-                <button class="btn" onclick="nextStep(3)">下一頁 ➔</button>
+                <button class="btn btn-prev" onclick="nextStep(1)">⬅ 上一頁：空間幾何</button>
+                <div style="color: var(--text-muted); font-size: 0.88rem;">步驟 2 / 6</div>
+                <button class="btn" onclick="nextStep(3)">下一頁：時序路由 ➔</button>
             </div>
         </div>
 
@@ -494,8 +663,17 @@
         <div class="step-page" id="step-3">
             <div class="page-header">
                 <div class="page-title">🚦 模組三：時序紅綠燈與多元替代路徑</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot completed">1</div>
+                    <div class="tracker-dot completed">2</div>
+                    <div class="tracker-dot active">3</div>
+                    <div class="tracker-dot">4</div>
+                    <div class="tracker-dot">5</div>
+                    <div class="tracker-dot">6</div>
+                </div>
                 <button class="btn btn-reset" onclick="resetModule(3)">重置本模組</button>
             </div>
+
             <div class="module-card">
                 <div class="switch-container">
                     <input type="checkbox" id="sw_routing" checked>
@@ -524,9 +702,11 @@
                     </div>
                 </div>
             </div>
+
             <div class="nav-footer">
-                <button class="btn" onclick="nextStep(2)">⬅ 上一頁</button>
-                <button class="btn" onclick="nextStep(4)">下一頁 ➔</button>
+                <button class="btn btn-prev" onclick="nextStep(2)">⬅ 上一頁：相變液冷</button>
+                <div style="color: var(--text-muted); font-size: 0.88rem;">步驟 3 / 6</div>
+                <button class="btn" onclick="nextStep(4)">下一頁：雙迴路供電 ➔</button>
             </div>
         </div>
 
@@ -534,8 +714,17 @@
         <div class="step-page" id="step-4">
             <div class="page-header">
                 <div class="page-title">⚡ 模組四：平行雙迴路與放電供電系統</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot completed">1</div>
+                    <div class="tracker-dot completed">2</div>
+                    <div class="tracker-dot completed">3</div>
+                    <div class="tracker-dot active">4</div>
+                    <div class="tracker-dot">5</div>
+                    <div class="tracker-dot">6</div>
+                </div>
                 <button class="btn btn-reset" onclick="resetModule(4)">重置本模組</button>
             </div>
+
             <div class="module-card">
                 <div class="switch-container">
                     <input type="checkbox" id="sw_power" checked>
@@ -564,9 +753,11 @@
                     </div>
                 </div>
             </div>
+
             <div class="nav-footer">
-                <button class="btn" onclick="nextStep(3)">⬅ 上一頁</button>
-                <button class="btn" onclick="nextStep(5)">下一頁 ➔</button>
+                <button class="btn btn-prev" onclick="nextStep(3)">⬅ 上一頁：時序路由</button>
+                <div style="color: var(--text-muted); font-size: 0.88rem;">步驟 4 / 6</div>
+                <button class="btn" onclick="nextStep(5)">下一頁：光學傳輸 ➔</button>
             </div>
         </div>
 
@@ -574,8 +765,17 @@
         <div class="step-page" id="step-5">
             <div class="page-header">
                 <div class="page-title">🚀 模組五：三模非均質與光學傳輸系統</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot completed">1</div>
+                    <div class="tracker-dot completed">2</div>
+                    <div class="tracker-dot completed">3</div>
+                    <div class="tracker-dot completed">4</div>
+                    <div class="tracker-dot active">5</div>
+                    <div class="tracker-dot">6</div>
+                </div>
                 <button class="btn btn-reset" onclick="resetModule(5)">重置本模組</button>
             </div>
+
             <div class="module-card">
                 <div class="switch-container">
                     <input type="checkbox" id="sw_optics" checked>
@@ -604,8 +804,10 @@
                     </div>
                 </div>
             </div>
+
             <div class="nav-footer">
-                <button class="btn" onclick="nextStep(4)">⬅ 上一頁</button>
+                <button class="btn btn-prev" onclick="nextStep(4)">⬅ 上一頁：雙迴路供電</button>
+                <div style="color: var(--text-muted); font-size: 0.88rem;">步驟 5 / 6</div>
                 <button class="btn btn-commit" onclick="commitAndSimulate()">確認設定並進階到運算渲染頁 ⚡</button>
             </div>
         </div>
@@ -613,15 +815,24 @@
         <!-- STEP 6 -->
         <div class="step-page" id="step-6">
             <div class="page-header">
-                <div class="page-title">📊 運算渲染中心 (Simulation Kernel)</div>
-                <button class="btn" onclick="nextStep(5)">⬅ 重設參數</button>
+                <div class="page-title">📊 運算渲染中心 (Simulation Kernel Execution)</div>
+                <div class="step-tracker">
+                    <div class="tracker-dot completed">1</div>
+                    <div class="tracker-dot completed">2</div>
+                    <div class="tracker-dot completed">3</div>
+                    <div class="tracker-dot completed">4</div>
+                    <div class="tracker-dot completed">5</div>
+                    <div class="tracker-dot active">6</div>
+                </div>
+                <button class="btn btn-prev" onclick="nextStep(5)">⬅ 返回調校參數</button>
             </div>
-            <div style="flex-grow: 1; margin: 1rem 0;">
+
+            <div style="flex-grow: 1; margin: 0.8rem 0; min-height: 0;">
                 <div class="dashboard-grid">
                     <!-- 圖表 1 -->
                     <div class="chart-box">
                         <div class="chart-header">
-                            <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">3D 晶片分層溫度演進 (℃)</span>
+                            <span style="font-size: 0.95rem; font-weight: bold; color: var(--primary);">3D 晶片分層溫度演進 (℃)</span>
                             <div class="layer-toggles" id="layer-toggles-container"></div>
                         </div>
                         <div class="canvas-container">
@@ -631,7 +842,11 @@
 
                     <!-- 狀態面板 -->
                     <div class="status-panel">
-                        <div style="font-size: 1.1rem; font-weight: bold; color: #fff;">演算核心運作狀態</div>
+                        <div style="font-size: 1.1rem; font-weight: bold; color: #fff; display: flex; justify-content: space-between; align-items: center;">
+                            <span>演算狀態</span>
+                            <span style="font-size: 0.75rem; color: var(--accent-green);" id="sim-status-badge">● RUNNING</span>
+                        </div>
+                        
                         <div>
                             <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
                                 <span>進度 (Step / 60)</span>
@@ -648,7 +863,7 @@
                                 <div class="metric-card-value" id="m-temp">-- ℃</div>
                             </div>
                             <div class="metric-card" style="border-color: var(--secondary);">
-                                <div class="metric-card-title">時序傳輸延遲 (Latency)</div>
+                                <div class="metric-card-title">時序傳輸延遲 (Avg Latency)</div>
                                 <div class="metric-card-value" id="m-latency">-- ns</div>
                             </div>
                             <div class="metric-card" style="border-color: var(--accent-red);">
@@ -657,13 +872,16 @@
                             </div>
                         </div>
 
-                        <button class="btn" style="margin-top: auto; justify-content: center;" onclick="toggleModal(true)">檢視完整高密度日誌</button>
+                        <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn btn-csv" style="justify-content: center; width: 100%;" onclick="exportCSV()">📥 匯出 60 步 Full CSV 數據</button>
+                            <button class="btn" style="justify-content: center; width: 100%;" onclick="toggleModal(true)">檢視高密度數據日誌</button>
+                        </div>
                     </div>
 
                     <!-- 圖表 2 -->
                     <div class="chart-box">
                         <div class="chart-header">
-                            <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">傳輸延遲與動態流量收斂圖</span>
+                            <span style="font-size: 0.95rem; font-weight: bold; color: var(--primary);">傳輸延遲與動態流量收斂圖</span>
                         </div>
                         <div class="canvas-container">
                             <canvas id="chartMetrics"></canvas>
@@ -678,22 +896,26 @@
     <div class="modal-overlay" id="log-modal">
         <div class="modal-content">
             <div class="page-header">
-                <div class="page-title">高密度物理模擬日誌 (60 Time Steps Full Data)</div>
-                <button class="btn btn-reset" onclick="toggleModal(false)">關閉 (ESC)</button>
+                <div class="page-title">高密度物理模擬日誌 (60 Time Steps Full Data Table)</div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-csv" onclick="exportCSV()">📥 匯出 CSV 檔</button>
+                    <button class="btn btn-reset" onclick="toggleModal(false)">關閉 (ESC)</button>
+                </div>
             </div>
             <div class="log-table-wrapper">
                 <table>
                     <thead>
-                        <tr>
+                        <tr id="table-header-row">
                             <th>Step</th>
                             <th>Traffic Load</th>
                             <th>Max Temp (℃)</th>
                             <th>Avg Latency (ns)</th>
                             <th>BER (誤碼率)</th>
+                            <!-- 動態層數 Header -->
                         </tr>
                     </thead>
                     <tbody id="log-table-body">
-                        <!-- 動態插入 -->
+                        <!-- 動態數據列 -->
                     </tbody>
                 </table>
             </div>
@@ -701,7 +923,7 @@
     </div>
 
     <script>
-        // 1. 出廠預設值 (DEFAULT_CONFIG)
+        // 1. 出廠預設值庫 (DEFAULT_CONFIG)
         const DEFAULT_CONFIG = {
             sw_geom: true, p_layers: 6, p_geo_density: 1.2, p_inter_r: 0.25, p_die_thick: 150, p_si_cond: 148,
             sw_thermal: true, p_cooling_temp: 65, p_valve_k: 1.5, p_tec_eff: 0.08, p_latent_k: 2.2, p_reflux_rate: 1.0,
@@ -710,7 +932,6 @@
             sw_optics: true, p_opt_noise: 0.05, p_agent_tol: 0.9, p_opt_interval: 0.15, p_opt_atten: 0.3, p_retrans_p: 2.0
         };
 
-        // 頁面定義模組範圍
         const MODULE_PARAMS = {
             1: ['sw_geom', 'p_layers', 'p_geo_density', 'p_inter_r', 'p_die_thick', 'p_si_cond'],
             2: ['sw_thermal', 'p_cooling_temp', 'p_valve_k', 'p_tec_eff', 'p_latent_k', 'p_reflux_rate'],
@@ -719,7 +940,7 @@
             5: ['sw_optics', 'p_opt_noise', 'p_agent_tol', 'p_opt_interval', 'p_opt_atten', 'p_retrans_p']
         };
 
-        // 雙向綁定與即時 UI 數字顯示
+        // 綁定所有滑桿與文字數字更新
         Object.keys(DEFAULT_CONFIG).forEach(key => {
             const input = document.getElementById(key);
             if (input) {
@@ -730,7 +951,7 @@
             }
         });
 
-        // 幻燈片全螢幕導覽
+        // 全螢幕導覽換頁
         function nextStep(stepNum) {
             const container = document.getElementById('slider-container');
             container.style.transform = `translateX(-${(stepNum - 1) * 100}vw)`;
@@ -753,38 +974,111 @@
             });
         }
 
-        // 圖表物件實體
+        // 新功能：輸入 TDP 自動推算 23 項參數
+        function applyAutoCalculation() {
+            const tdp = parseFloat(document.getElementById('target-tdp').value) || 250;
+            const ratio = tdp / 250.0; // 以 250W 為標準基準比率
+
+            // 1. 幾何
+            setVal('p_layers', Math.min(24, Math.max(1, Math.round(6 * Math.sqrt(ratio)))));
+            setVal('p_geo_density', (1.2 * Math.pow(ratio, 0.25)).toFixed(1));
+            setVal('p_inter_r', (0.25 / Math.sqrt(ratio)).toFixed(2));
+            setVal('p_die_thick', Math.min(300, Math.max(50, Math.round(150 * ratio))));
+            setVal('p_si_cond', Math.min(200, Math.max(80, Math.round(148 + (ratio - 1) * 20))));
+
+            // 2. 相變散熱
+            setVal('p_cooling_temp', Math.min(85, Math.max(45, Math.round(65 - (ratio - 1) * 10))));
+            setVal('p_valve_k', (1.5 * ratio).toFixed(1));
+            setVal('p_tec_eff', (Math.min(0.2, 0.08 * ratio)).toFixed(2));
+            setVal('p_latent_k', (2.2 * Math.sqrt(ratio)).toFixed(1));
+            setVal('p_reflux_rate', (1.0 * ratio).toFixed(1));
+
+            // 3. 路由
+            setVal('p_traffic_th', (5.0 / Math.sqrt(ratio)).toFixed(1));
+            setVal('p_tsv_speed', (2.5 * ratio).toFixed(1));
+            setVal('p_imp_factor', (Math.min(0.05, 0.02 * ratio)).toFixed(3));
+            setVal('p_queue_size', Math.min(128, Math.max(16, Math.round(64 * ratio))));
+            setVal('p_cross_delay', (0.5 / Math.sqrt(ratio)).toFixed(1));
+
+            // 4. 雙迴路供電
+            setVal('p_power_comp', (Math.min(0.4, 0.15 * ratio)).toFixed(2));
+            setVal('p_backup_time', Math.min(20, Math.max(1, Math.round(5 * ratio))));
+            setVal('p_leak_alpha', (Math.min(0.010, 0.005 * ratio)).toFixed(3));
+            setVal('p_load_bal', (1.0 * ratio).toFixed(1));
+            setVal('p_vdd_volt', (Math.min(1.4, Math.max(0.6, 0.9 + (ratio - 1) * 0.1))).toFixed(2));
+
+            // 5. 光學
+            setVal('p_opt_noise', (Math.min(0.3, 0.05 * ratio)).toFixed(2));
+            setVal('p_agent_tol', (Math.min(1.0, 0.9 * Math.sqrt(ratio))).toFixed(2));
+            setVal('p_opt_interval', (Math.min(0.25, 0.15 * ratio)).toFixed(2));
+            setVal('p_opt_atten', (0.3 / Math.sqrt(ratio)).toFixed(1));
+            setVal('p_retrans_p', (2.0 * Math.sqrt(ratio)).toFixed(1));
+        }
+
+        function setVal(id, val) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.value = val;
+                const label = document.getElementById('val_' + id);
+                if (label) label.textContent = val;
+            }
+        }
+
+        function applyPreset(type) {
+            const input = document.getElementById('target-tdp');
+            if (type === 'mobile') input.value = 60;
+            else if (type === 'balanced') input.value = 200;
+            else if (type === 'hpc') input.value = 500;
+            applyAutoCalculation();
+        }
+
         let chartTempInstance = null;
         let chartMetricsInstance = null;
         let simInterval = null;
-        let layerVisibility = []; // 記憶勾選狀態
+        let layerVisibility = [];
+        let simulationHistoryLog = []; // 儲存 60 步全數據供 CSV 匯出
 
-        // 多色彩虹產生器 (提供圖表層數線條)
         function getLayerColor(index, total) {
             const hue = (index * (360 / Math.max(total, 1))) % 360;
             return `hsl(${hue}, 80%, 60%)`;
         }
 
-        // STEP 6: 觸發Commit與動態演算渲染
         function commitAndSimulate() {
             nextStep(6);
 
-            // 讀取全域設定變數 (讀取DOM快照，徹底解耦)
+            // 讀取全域設定變數快照
             const cfg = {};
             Object.keys(DEFAULT_CONFIG).forEach(key => {
                 const el = document.getElementById(key);
                 cfg[key] = el.type === 'checkbox' ? el.checked : parseFloat(el.value);
             });
 
-            // 重設與清理圖表、日誌面板
             if (simInterval) clearInterval(simInterval);
             document.getElementById('log-table-body').innerHTML = '';
             document.getElementById('sim-progress').style.width = '0%';
             document.getElementById('sim-step-text').textContent = '0 / 60';
+            document.getElementById('sim-status-badge').textContent = '● RUNNING';
+            document.getElementById('sim-status-badge').style.color = 'var(--accent-green)';
+            simulationHistoryLog = [];
 
             const layers = cfg.p_layers;
-            
-            // 初始化或更新層數勾選按鈕列
+
+            // 表格 Dynamic Header
+            const tableHeaderRow = document.getElementById('table-header-row');
+            tableHeaderRow.innerHTML = `
+                <th>Step</th>
+                <th>Traffic Load</th>
+                <th>Max Temp (℃)</th>
+                <th>Avg Latency (ns)</th>
+                <th>BER (誤碼率)</th>
+            `;
+            for (let i = 0; i < layers; i++) {
+                const th = document.createElement('th');
+                th.textContent = `L${i + 1} (℃)`;
+                tableHeaderRow.appendChild(th);
+            }
+
+            // 層數切換按鈕
             const togglesContainer = document.getElementById('layer-toggles-container');
             togglesContainer.innerHTML = '';
             if (layerVisibility.length !== layers) {
@@ -806,7 +1100,7 @@
                 togglesContainer.appendChild(btn);
             }
 
-            // 初始化 Chart.js - 圖表一：溫度演進
+            // 初始化 Chart 1 - 溫度演進
             const ctxTemp = document.getElementById('chartTemp').getContext('2d');
             if (chartTempInstance) chartTempInstance.destroy();
 
@@ -839,7 +1133,7 @@
                 }
             });
 
-            // 初始化 Chart.js - 圖表二：雙 Y 軸 (延遲 & 流量)
+            // 初始化 Chart 2 - 延遲與流量
             const ctxMetrics = document.getElementById('chartMetrics').getContext('2d');
             if (chartMetricsInstance) chartMetricsInstance.destroy();
 
@@ -865,48 +1159,41 @@
                 }
             });
 
-            // 物理演算狀態矩陣初始化
             let step = 0;
             const totalSteps = 60;
-            let currentTemps = new Array(layers).fill(30.0); // 初始室溫 30°C
+            let currentTemps = new Array(layers).fill(30.0);
 
-            // 開始 40ms 增量計時器
+            // 40ms 定時器增量渲染
             simInterval = setInterval(() => {
                 step++;
                 const t = step;
 
-                // 1. 動態工作負載 (Traffic Load) 衝擊波
+                // 物理微分方程近似計算
                 const trafficLoad = 0.5 + 0.3 * Math.sin(t / 5.0);
 
-                // 2. 幾何 / 供電發熱量
                 const geoModifier = cfg.sw_geom ? (1.0 + (layers / 24.0) * cfg.p_geo_density) : 1.0;
                 const dieThickFactor = cfg.sw_geom ? (cfg.p_die_thick / 150.0) : 1.0;
                 const vddFactor = cfg.sw_power ? (cfg.p_vdd_volt / 0.9) : 1.0;
                 
                 let heatIn = trafficLoad * 28.0 * geoModifier * dieThickFactor * vddFactor;
 
-                // 3. 逐層熱擴散與耦合計算
                 const nextTemps = [...currentTemps];
                 const keff = cfg.sw_geom ? (cfg.p_inter_r * (cfg.p_si_cond / 148.0)) : 0.25;
 
                 for (let l = 0; l < layers; l++) {
-                    let lHeat = heatIn * (1.0 + l * 0.08); // 底部向上功耗遞增
+                    let lHeat = heatIn * (1.0 + l * 0.08);
 
-                    // 漏電熱耦合正回饋
                     if (cfg.sw_power && currentTemps[l] > 70.0) {
                         lHeat += (currentTemps[l] - 70.0) * cfg.p_leak_alpha * 20.0 * cfg.p_load_bal;
                     }
 
-                    // 傅立葉層間導熱 (相鄰層溫差傳導)
                     let conduct = 0;
                     if (l > 0) conduct += (currentTemps[l - 1] - currentTemps[l]) * keff;
                     if (l < layers - 1) conduct += (currentTemps[l + 1] - currentTemps[l]) * keff;
 
-                    // 相變潛熱散熱
                     let coolingOut = 0;
                     if (cfg.sw_thermal && currentTemps[l] > cfg.p_cooling_temp) {
                         coolingOut = (currentTemps[l] - cfg.p_cooling_temp) * 0.4 * cfg.p_valve_k * cfg.p_latent_k * cfg.p_reflux_rate;
-                        // 熱電回收微幅效益
                         coolingOut *= (1.0 + cfg.p_tec_eff);
                     }
 
@@ -914,32 +1201,40 @@
                 }
                 currentTemps = nextTemps;
 
-                // 4. 時序延遲與分流避堵計算
                 const maxTemp = Math.max(...currentTemps);
                 let baseLatency = 2.0 + trafficLoad * 5.0 + (maxTemp * cfg.p_imp_factor);
 
                 if (cfg.sw_routing) {
                     if (trafficLoad * 10.0 > cfg.p_queue_size / 8.0) {
-                        baseLatency += cfg.p_cross_delay * 2.0; // 佇列溢出懲罰
+                        baseLatency += cfg.p_cross_delay * 2.0;
                     }
                     if (baseLatency > cfg.p_traffic_th) {
-                        baseLatency /= cfg.p_tsv_speed; // TSV 立體電梯降速分流
+                        baseLatency /= cfg.p_tsv_speed;
                     }
                 }
 
-                // 5. 光學誤碼率 (BER) 演算
                 let ber = 0;
                 if (cfg.sw_optics) {
                     const noise = cfg.p_opt_noise * (1.0 / cfg.p_agent_tol);
                     const atten = cfg.p_opt_atten / cfg.p_opt_interval;
                     ber = Math.min(0.1, (noise * 0.01 + atten * 0.005) * trafficLoad);
-                    baseLatency += (ber * 100.0) * cfg.p_retrans_p; // 重傳懲罰加諸於延遲
+                    baseLatency += (ber * 100.0) * cfg.p_retrans_p;
                 } else {
-                    // 傳統銅線衰減
                     ber = 0.001 * (layers / 6.0) * trafficLoad;
                 }
 
-                // --- 增量圖表繪製 (Incremental Update) ---
+                // 記錄全日誌數據物件
+                const logEntry = {
+                    step,
+                    trafficLoad: trafficLoad.toFixed(4),
+                    maxTemp: maxTemp.toFixed(2),
+                    latency: baseLatency.toFixed(3),
+                    ber: ber.toExponential(4),
+                    layerTemps: currentTemps.map(v => v.toFixed(2))
+                };
+                simulationHistoryLog.push(logEntry);
+
+                // 即時增量繪圖
                 chartTempInstance.data.labels.push(step);
                 for (let l = 0; l < layers; l++) {
                     chartTempInstance.data.datasets[l].data.push(currentTemps[l]);
@@ -951,41 +1246,75 @@
                 chartMetricsInstance.data.datasets[1].data.push(trafficLoad);
                 chartMetricsInstance.update();
 
-                // 更新即時數據卡片
+                // UI 面板更新
                 document.getElementById('m-temp').textContent = `${maxTemp.toFixed(1)} ℃`;
                 document.getElementById('m-latency').textContent = `${baseLatency.toFixed(2)} ns`;
                 document.getElementById('m-ber').textContent = ber.toExponential(2);
 
-                // 更新進度條
                 document.getElementById('sim-progress').style.width = `${(step / totalSteps) * 100}%`;
                 document.getElementById('sim-step-text').textContent = `${step} / ${totalSteps}`;
 
-                // 動態插入高密度日誌表格
+                // 數據表 DOM 增量插入
                 const tr = document.createElement('tr');
+                let layerTds = logEntry.layerTemps.map(t => `<td>${t}</td>`).join('');
                 tr.innerHTML = `
-                    <td>${step}</td>
-                    <td>${trafficLoad.toFixed(3)}</td>
-                    <td>${maxTemp.toFixed(2)}</td>
-                    <td>${baseLatency.toFixed(3)}</td>
-                    <td>${ber.toExponential(4)}</td>
+                    <td>${logEntry.step}</td>
+                    <td>${logEntry.trafficLoad}</td>
+                    <td>${logEntry.maxTemp}</td>
+                    <td>${logEntry.latency}</td>
+                    <td>${logEntry.ber}</td>
+                    ${layerTds}
                 `;
                 document.getElementById('log-table-body').appendChild(tr);
 
-                // 結束判定
                 if (step >= totalSteps) {
                     clearInterval(simInterval);
+                    document.getElementById('sim-status-badge').textContent = '✓ FINISHED';
+                    document.getElementById('sim-status-badge').style.color = 'var(--primary)';
                 }
             }, 40);
         }
 
-        // 燈箱切換控制
+        // 新功能：匯出 CSV 檔案
+        function exportCSV() {
+            if (!simulationHistoryLog || simulationHistoryLog.length === 0) {
+                alert('目前無可用的模擬數據，請先運行運算！');
+                return;
+            }
+
+            const layers = simulationHistoryLog[0].layerTemps.length;
+            let csvContent = 'data:text/csv;charset=utf-8,\uFEFF'; // BOM 防止中文亂碼
+
+            // Header
+            let headers = ['Step', 'Traffic_Load', 'Max_Temp_C', 'Avg_Latency_ns', 'BER'];
+            for (let i = 1; i <= layers; i++) {
+                headers.push(`Layer_${i}_Temp_C`);
+            }
+            csvContent += headers.join(',') + '\r\n';
+
+            // Rows
+            simulationHistoryLog.forEach(row => {
+                let rData = [row.step, row.trafficLoad, row.maxTemp, row.latency, `"${row.ber}"`];
+                rData = rData.concat(row.layerTemps);
+                csvContent += rData.join(',') + '\r\n';
+            });
+
+            // Trigger Download
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `3D_IC_Simulation_Data_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
         function toggleModal(show) {
             const modal = document.getElementById('log-modal');
             if (show) modal.classList.add('active');
             else modal.classList.remove('active');
         }
 
-        // ESC 鍵關閉燈箱
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') toggleModal(false);
         });
