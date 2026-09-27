@@ -1,0 +1,31 @@
+name: Auto Update Semiconductor Standards
+
+on:
+  schedule:
+    # 每天凌晨 00:00 (UTC) 自動執行爬蟲與更新
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 也支援在 GitHub 介面上手動點擊測試
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/python-setup@v4
+        with:
+          python-version: '3.x'
+
+      - name: Run Scraper
+        run: |
+          python scripts/fetch_latest_standards.py
+
+      - name: Commit & Push Updated Data
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add standards.json
+          git diff-index --quiet HEAD || git commit -m "🤖 [Auto-Bot] 自動更新業界最新對比標準"
+          git push
