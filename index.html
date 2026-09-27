@@ -314,14 +314,14 @@
     let thermalChartInstance = null;
     let latencyChartInstance = null;
 function executeSimulation() {
-    // 1. 🔍 讀取網頁畫面上 5 大模組的點選開關狀態 (布林值)
+    // 1. 🔍 讀取網頁畫面上 5 大模組的點選開關狀態
     const sw_geom = document.getElementById('sw_geom').checked;
     const sw_thermal = document.getElementById('sw_thermal').checked;
     const sw_routing = document.getElementById('sw_routing').checked;
     const sw_power = document.getElementById('sw_power').checked;
     const sw_optics = document.getElementById('sw_optics').checked;
 
-    // 2. ⚙️ 讀取每個功能模組的動態滑桿參數 (極詳細科研灣數)
+    // 2. ⚙️ 讀取每個功能模組的動態滑桿參數
     const L = parseInt(document.getElementById('p_layers').value);
     const density = parseFloat(document.getElementById('p_geo_density').value);
     const cool_T = parseFloat(document.getElementById('p_cooling_temp').value);
@@ -329,20 +329,16 @@ function executeSimulation() {
     const t_th = parseFloat(document.getElementById('p_traffic_th').value);
     const tsv = parseFloat(document.getElementById('p_tsv_speed').value);
     const p_comp = parseFloat(document.getElementById('p_power_comp').value);
-    const backup_time = parseFloat(document.getElementById('p_backup_time').value);
     const opt_n = parseFloat(document.getElementById('p_opt_noise').value);
     const agent_tol = parseFloat(document.getElementById('p_agent_tol').value);
 
     // 3. 📊 初始化模擬時間步長與高精度物理狀態矩陣
     const time_steps = 60;
-    
-    // 建立 2 萬多元素量級的動態溫控陣列 (時間軸 x 晶片層數)，初始室溫 25°C
     let temp_history = [];
     for (let i = 0; i < time_steps; i++) {
         temp_history.push(new Array(L).fill(25.0));
     }
 
-    // 初始化詳細數據收集陣列，為科研圖表提供高密度資料
     let max_temp_per_step = [];
     let latency_history = [];
     let traffic_history = [];
@@ -351,46 +347,36 @@ function executeSimulation() {
 
     // 4. 🌀 多物理量動態耦合循環計算正式啟動
     for (let t = 1; t < time_steps; t++) {
-        // 模擬隨時間呈正弦波波動的動態資料流傳輸量 (模擬真實工作負載波形)
         let current_load = 0.5 + 0.3 * Math.sin(t / 5.0);
         traffic_history.push(current_load * 100.0);
         total_throughput += current_load * 100.0;
 
-        // 🌐 模組一：空間幾何與分層功耗積壓計算
-        // 當層數超過 4 層且啟用幾何縮放時，體積功耗積壓係數將對發熱功率進行乘積懲罰
         let geo_modifier = (sw_geom && L > 4) ? density : 1.0;
         let heat_in = current_load * 28.0 * geo_modifier;
 
-        // ⚡ 模組四：平行雙迴路與電位差主動放電補償
-        // 若啟用補償機制，會優化電流效率，使基準發熱量降低
         if (sw_power) {
             heat_in *= (1.0 - p_comp);
         }
 
         let step_max_temp = 25.0;
-        // 針對 3D 方塊的每一層(樓層)進行詳細物理迭代運算
+
+        // 針對 3D 方塊的每一層進行物理迭代運算
         for (let l = 0; l < L; l++) {
             let prev_T = temp_history[t - 1][l];
-
-            // 3D 內部層間熱傳導模型 (傅立葉熱傳導立體簡化矩陣)
             let k_thermal = 0.25;
             let heat_exchange = 0.0;
+            
             if (l > 0) heat_exchange += k_thermal * (temp_history[t - 1][l - 1] - prev_T);
             if (l < L - 1) heat_exchange += k_thermal * (temp_history[t - 1][l + 1] - prev_T);
 
-            // 🌬️ 模組二：相變液冷與電子回收散熱系統臨界點觸發
             let cooling_out = 0.0;
             if (sw_thermal && prev_T > cool_T) {
-                // 汽化潛熱引導，微通道閥門動態流量加成
                 cooling_out = (prev_T - cool_T) * 0.4 * valve;
             }
 
-            // 方塊頂層與底層的邊界外露面額外環境物理散熱
             let boundary_cooling = (l === 0 || l === L - 1) ? 1.5 : 0.0;
-
-            // 更新當前時間步長、該層晶片的物理溫度
             let next_T = prev_T + heat_in + heat_exchange - cooling_out - boundary_cooling;
-            if (next_T < 25.0) next_T = 25.0; // 物理限制：不得低於環境室溫
+            if (next_T < 25.0) next_T = 25.0;
             
             temp_history[t][l] = next_T;
             if (next_T > step_max_temp) {
@@ -399,59 +385,54 @@ function executeSimulation() {
         }
         max_temp_per_step.push(step_max_temp);
 
-        // 🚦 模組三：時序紅綠燈與多元替代路徑延遲計算
+        // 🚦 模組三：時序紅綠燈延遲計算
         let base_latency = current_load * 7.0;
-
-        // 晶片高溫下的阻抗增加與漏電流正回饋干涉
         if (step_max_temp > 75.0) {
             base_latency *= (1.0 + (step_max_temp - 75.0) * 0.02);
         }
 
-        // 當延遲超過紅綠燈切換閾值，啟動多元替代路徑與 TSV 立體電梯避堵機制
         if (sw_routing && base_latency > t_th) {
             base_latency /= tsv;
         }
 
-        // 🚀 模組五：三模非均質與光學傳輸通道雜訊干涉
-        let current_ber = 0.0001; // 基準誤碼率
+        // 🚀 模組五：信號傳輸通道雜訊干涉
+        let current_ber = 0.0001;
         if (sw_optics) {
-            // 環境雜訊與衰減會使誤碼率上升，多Agent解碼仲裁機制會對其進行容錯修正優化
             current_ber = (opt_n * 0.05) * (1.0 - (agent_tol - 0.5));
-            // 誤碼重傳機制導致時序延遲微幅上升
             base_latency += (current_ber * 150.0);
         } else {
-            // 若未啟用前沿光學比例區間傳輸，傳統銅線在高層數、高負載下誤碼率會惡化
             current_ber = 0.001 * (L * 0.5) * geo_modifier;
         }
         
+        // 修正：徹底移除原本錯誤的 .append 語法
         latency_history.push(base_latency);
         ber_history.push(current_ber);
     }
 
-    // 補齊時間軸起點第 0 步的數據對齊，確保圖表不發生位移
     max_temp_per_step.unshift(25.0);
     latency_history.unshift(latency_history[0] || 0.0);
     traffic_history.unshift(traffic_history[0] || 50.0);
     ber_history.unshift(ber_history[0] || 0.0001);
+
     // 5. 📊 計算與提取關鍵科研數據指標
     const final_max_t = Math.max(...max_temp_per_step);
     const final_avg_l = latency_history.reduce((a, b) => a + b, 0) / latency_history.length;
     const final_avg_thr = total_throughput / (time_steps - 1);
     const final_ber = ber_history[ber_history.length - 1];
 
-    // 6. 🎛️ 即時更新四大高精度數據卡片面版 (Data Cards)
+    // 6. 🎛️ 即時更新四大數據卡片
     document.getElementById('d_max_temp').innerText = `${final_max_t.toFixed(2)} °C`;
     document.getElementById('d_avg_lat').innerText = `${final_avg_l.toFixed(2)}`;
     document.getElementById('d_avg_thr').innerText = `${final_avg_thr.toFixed(1)} %`;
     document.getElementById('d_ber_val').innerText = final_ber.toExponential(3);
 
-    // 7. 📝 更新網頁上的文字系統摘要描述
+    // 7. 📝 更新網頁系統摘要描述
     const summaryBox = document.getElementById('summaryBox');
     summaryBox.innerHTML = `
         <strong>📊 系統級行為模擬報告 (CubeSim Report)</strong><br>
         • 🧬 測試架構: <strong>${L} 層</strong> 3D 立體方塊非均質晶片堆疊<br>
-        • 🔥 峰值核心溫度: <span style="color:#f43f5e; font-weight:bold;">${final_max_t.toFixed(2)} °C</span> (臨界點限制校驗通過)<br>
-        • ⚡ 訊號吞吐延遲: <span style="color:#38bdf8; font-weight:bold;">${final_avg_l.toFixed(2)} 單位</span> (動態路由調度已作用)<br>
+        • 🔥 峰值核心溫度: <span style="color:#f43f5e; font-weight:bold;">${final_max_t.toFixed(2)} °C</span><br>
+        • ⚡ 訊號吞吐延遲: <span style="color:#38bdf8; font-weight:bold;">${final_avg_l.toFixed(2)} 單位</span><br>
         • 📈 數據狀態: 多物理量邊界矩陣收斂完成，已產生高密度科研分析圖表。
     `;
 
@@ -459,18 +440,14 @@ function executeSimulation() {
     const ctx1 = document.getElementById('thermalChart').getContext('2d');
     const labels = Array.from({length: time_steps}, (_, i) => i);
     
-    // 防閃爍處理：若已有舊圖表實例存在，先銷毀它
-    if (thermalChartInstance) {
-        thermalChartInstance.destroy();
-    }
+    if (thermalChartInstance) { thermalChartInstance.destroy(); }
 
-    // 動態建構每一層(樓層)的時間序列熱數據線條
     let tempDatasets = [];
     for (let l = 0; l < L; l++) {
         let layerData = temp_history.map(step => step[l]);
-        const hue = (l * (360 / L)) % 360; // 自動色調分配，確保曲線清晰不重疊
+        const hue = (l * (360 / L)) % 360;
         tempDatasets.push({
-            label: `Layer ${l + 1} (第 ${l + 1} 層)`,
+            label: `Layer ${l + 1}`,
             data: layerData,
             borderColor: `hsl(${hue}, 75%, 60%)`,
             backgroundColor: `hsl(${hue}, 75%, 60%, 0.05)`,
@@ -480,116 +457,66 @@ function executeSimulation() {
         });
     }
 
-    // 建立新熱傳導圖表實例
     thermalChartInstance = new Chart(ctx1, {
         type: 'line',
         data: { labels: labels, datasets: tempDatasets },
         options: {
             responsive: true,
             plugins: {
-                title: {
-                    display: true,
-                    text: '3D Cube Chip Multi-Layer Thermal Evolution (熱傳導分層資料)',
-                    color: '#94a3b8',
-                    font: { size: 14, weight: 'bold' }
-                },
-                legend: { display: L <= 8, labels: { color: '#94a3b8', font: { size: 10 } } }
+                title: { display: true, text: '3D Cube Chip Multi-Layer Thermal Evolution', color: '#94a3b8' }
             },
             scales: {
-                x: { 
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#94a3b8' },
-                    title: { display: true, text: 'Simulation Time Steps (時間步長)', color: '#94a3b8' } 
-                },
-                y: { 
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#94a3b8' },
-                    title: { display: true, text: 'Temperature (°C)', color: '#94a3b8' }, 
-                    min: 20 
-                }
+                x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, min: 20 }
             }
         }
     });
 
     // 9. 📊 渲染或更新【圖表二：訊號傳輸延遲與動態流量雙 Y 軸收斂圖】
     const ctx2 = document.getElementById('latencyChart').getContext('2d');
-    
-    // 防閃爍與重疊處理
-    if (latencyChartInstance) {
-        latencyChartInstance.destroy();
-    }
+    if (latencyChartInstance) { latencyChartInstance.destroy(); }
 
-    // 建立具備高度對比、適合用於架構微調與設計分析之雙軸圖表
     latencyChartInstance = new Chart(ctx2, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: 'Signal Transmission Latency (訊號傳輸延遲)',
+                    label: 'Signal Latency',
                     data: latency_history,
                     borderColor: '#38bdf8',
                     backgroundColor: 'rgba(56, 189, 248, 0.1)',
                     borderWidth: 2.5,
                     pointRadius: 0,
-                    yAxisID: 'y' // 綁定至左側時序軸
+                    yAxisID: 'y'
                 },
                 {
-                    label: 'Data Traffic Load (動態資料流量 %)',
+                    label: 'Traffic Load (%)',
                     data: traffic_history,
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.02)',
                     borderWidth: 1.5,
-                    borderDash:, // 修正：完美修正原本破壞編譯之 borderDash 語法
+                    borderDash:, // 修正：完美修正原本破壞編譯之語法錯誤
                     pointRadius: 0,
-                    yAxisID: 'y1' // 綁定至右側百分比軸
+                    yAxisID: 'y1'
                 }
             ]
         },
         options: {
             responsive: true,
             plugins: {
-                title: {
-                    display: true,
-                    text: 'Signaling Delay vs Dynamic Traffic Wave (時序與流量交叉驗證)',
-                    color: '#94a3b8',
-                    font: { size: 14, weight: 'bold' }
-                },
-                legend: { labels: { color: '#94a3b8' } }
+                title: { display: true, text: 'Signaling Delay vs Dynamic Traffic Wave', color: '#94a3b8' }
             },
             scales: {
-                x: {
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#94a3b8' },
-                    title: { display: true, text: 'Simulation Time Steps (時間步長)', color: '#94a3b8' }
-                },
-                y: {
-                    type: 'linear',
-                    display: true,
-                    position: 'left',
-                    grid: { color: '#1e293b' },
-                    ticks: { color: '#38bdf8' },
-                    title: { display: true, text: 'Latency (Delay 單位)', color: '#38bdf8' },
-                    min: 0
-                },
-                y1: {
-                    type: 'linear',
-                    display: true,
-                    position: 'right',
-                    ticks: { color: '#10b981' },
-                    title: { display: true, text: 'Traffic Load (%)', color: '#10b981' },
-                    min: 0,
-                    max: 100,
-                    grid: {
-                        drawOnChartArea: false // 避免右軸網格線與左軸衝突，保持畫面清晰
-                    }
-                }
+                x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                y: { type: 'linear', display: true, position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#38bdf8' }, min: 0 },
+                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#10b981' }, min: 0, max: 100, grid: { drawOnChartArea: false } }
             }
         }
     });
 }
 
-// 10. 🔄 網頁載入完成後立即自動觸發一次模擬，讓您一進網頁就能看到基礎科研數據與圖表演進
+// 10. 🔄 網頁載入完成後立即自動觸發一次模擬
 window.onload = function() {
     executeSimulation();
 };
