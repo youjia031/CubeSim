@@ -581,23 +581,23 @@
                 <div class="slider-grid">
                     <div class="control-group">
                         <div class="control-label"><span>1-1 基礎晶片設計層數 (p_layers)</span><span class="control-value" id="val_p_layers">6</span></div>
-                        <input type="range" id="p_layers" min="1" max="24" value="6" step="1">
+                        <input type="range" id="p_layers" min="1" max="64" value="6" step="1">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>1-2 體積功耗積壓係數 (p_geo_density)</span><span class="control-value" id="val_p_geo_density">1.2</span></div>
-                        <input type="range" id="p_geo_density" min="1.0" max="3.0" value="1.2" step="0.1">
+                        <div class="control-label"><span>1-2 體積功耗積壓係數 (p_geo_density)</span><span class="control-value" id="val_p_geo_density">1.20</span></div>
+                        <input type="range" id="p_geo_density" min="0.1" max="10.0" value="1.20" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>1-3 層間介面熱阻阻抗 (p_inter_r)</span><span class="control-value" id="val_p_inter_r">0.25</span></div>
-                        <input type="range" id="p_inter_r" min="0.05" max="0.50" value="0.25" step="0.01">
+                        <div class="control-label"><span>1-3 層間介面熱阻阻抗 (p_inter_r)</span><span class="control-value" id="val_p_inter_r">0.250</span></div>
+                        <input type="range" id="p_inter_r" min="0.001" max="2.000" value="0.250" step="0.001">
                     </div>
                     <div class="control-group">
                         <div class="control-label"><span>1-4 3D 封裝垂直層高基底 (p_die_thick)</span><span class="control-value" id="val_p_die_thick">150</span></div>
-                        <input type="range" id="p_die_thick" min="50" max="300" value="150" step="5">
+                        <input type="range" id="p_die_thick" min="10" max="1000" value="150" step="1">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>1-5 矽基底材料導熱率 (p_si_cond)</span><span class="control-value" id="val_p_si_cond">148</span></div>
-                        <input type="range" id="p_si_cond" min="80" max="200" value="148" step="1">
+                        <div class="control-label"><span>1-5 矽基底材料導熱率 (p_si_cond)</span><span class="control-value" id="val_p_si_cond">148.0</span></div>
+                        <input type="range" id="p_si_cond" min="10" max="500" value="148.0" step="0.1">
                     </div>
                 </div>
             </div>
@@ -630,24 +630,24 @@
                 </div>
                 <div class="slider-grid">
                     <div class="control-group">
-                        <div class="control-label"><span>2-1 相變汽化臨界溫度閾值 (p_cooling_temp)</span><span class="control-value" id="val_p_cooling_temp">65</span></div>
-                        <input type="range" id="p_cooling_temp" min="40" max="90" value="65" step="1">
+                        <div class="control-label"><span>2-1 相變汽化臨界溫度閾值 (p_cooling_temp)</span><span class="control-value" id="val_p_cooling_temp">65.0</span></div>
+                        <input type="range" id="p_cooling_temp" min="10" max="150" value="65.0" step="0.1">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>2-2 微通道閥門動態流量係數 (p_valve_k)</span><span class="control-value" id="val_p_valve_k">1.5</span></div>
-                        <input type="range" id="p_valve_k" min="0.5" max="3.0" value="1.5" step="0.1">
+                        <div class="control-label"><span>2-2 微通道閥門動態流量係數 (p_valve_k)</span><span class="control-value" id="val_p_valve_k">1.50</span></div>
+                        <input type="range" id="p_valve_k" min="0.01" max="10.00" value="1.50" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>2-3 廢熱回收熱電轉換效率 (p_tec_eff)</span><span class="control-value" id="val_p_tec_eff">0.08</span></div>
-                        <input type="range" id="p_tec_eff" min="0.0" max="0.2" value="0.08" step="0.01">
+                        <div class="control-label"><span>2-3 廢熱回收熱電轉換效率 (p_tec_eff)</span><span class="control-value" id="val_p_tec_eff">0.080</span></div>
+                        <input type="range" id="p_tec_eff" min="0.000" max="0.500" value="0.080" step="0.001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>2-4 液體冷卻劑汽化潛熱係數 (p_latent_k)</span><span class="control-value" id="val_p_latent_k">2.2</span></div>
-                        <input type="range" id="p_latent_k" min="1.0" max="5.0" value="2.2" step="0.1">
+                        <div class="control-label"><span>2-4 液體冷卻劑汽化潛熱係數 (p_latent_k)</span><span class="control-value" id="val_p_latent_k">2.20</span></div>
+                        <input type="range" id="p_latent_k" min="0.10" max="20.00" value="2.20" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>2-5 封閉管道冷凝回流循環速率 (p_reflux_rate)</span><span class="control-value" id="val_p_reflux_rate">1.0</span></div>
-                        <input type="range" id="p_reflux_rate" min="0.1" max="2.0" value="1.0" step="0.1">
+                        <div class="control-label"><span>2-5 封閉管道冷凝回流循環速率 (p_reflux_rate)</span><span class="control-value" id="val_p_reflux_rate">1.00</span></div>
+                        <input type="range" id="p_reflux_rate" min="0.01" max="10.00" value="1.00" step="0.01">
                     </div>
                 </div>
             </div>
@@ -681,24 +681,24 @@
                 </div>
                 <div class="slider-grid">
                     <div class="control-group">
-                        <div class="control-label"><span>3-1 紅綠燈切換擁堵延遲閾值 (p_traffic_th)</span><span class="control-value" id="val_p_traffic_th">5.0</span></div>
-                        <input type="range" id="p_traffic_th" min="1.0" max="10.0" value="5.0" step="0.1">
+                        <div class="control-label"><span>3-1 紅綠燈切換擁堵延遲閾值 (p_traffic_th)</span><span class="control-value" id="val_p_traffic_th">5.00</span></div>
+                        <input type="range" id="p_traffic_th" min="0.10" max="50.00" value="5.00" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>3-2 TSV 立體電梯/天橋傳輸優化增益 (p_tsv_speed)</span><span class="control-value" id="val_p_tsv_speed">2.5</span></div>
-                        <input type="range" id="p_tsv_speed" min="1.0" max="5.0" value="2.5" step="0.1">
+                        <div class="control-label"><span>3-2 TSV 立體電梯/天橋傳輸優化增益 (p_tsv_speed)</span><span class="control-value" id="val_p_tsv_speed">2.50</span></div>
+                        <input type="range" id="p_tsv_speed" min="0.10" max="20.00" value="2.50" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>3-3 高溫漏電流阻抗劣化係數 (p_imp_factor)</span><span class="control-value" id="val_p_imp_factor">0.02</span></div>
-                        <input type="range" id="p_imp_factor" min="0.01" max="0.05" value="0.02" step="0.005">
+                        <div class="control-label"><span>3-3 高溫漏電流阻抗劣化係數 (p_imp_factor)</span><span class="control-value" id="val_p_imp_factor">0.0200</span></div>
+                        <input type="range" id="p_imp_factor" min="0.0001" max="0.2000" value="0.0200" step="0.0001">
                     </div>
                     <div class="control-group">
                         <div class="control-label"><span>3-4 路由緩衝排隊佇列最大容量 (p_queue_size)</span><span class="control-value" id="val_p_queue_size">64</span></div>
-                        <input type="range" id="p_queue_size" min="16" max="128" value="64" step="1">
+                        <input type="range" id="p_queue_size" min="4" max="512" value="64" step="1">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>3-5 電路交織點內部固定時延 (p_cross_delay)</span><span class="control-value" id="val_p_cross_delay">0.5</span></div>
-                        <input type="range" id="p_cross_delay" min="0.1" max="1.5" value="0.5" step="0.1">
+                        <div class="control-label"><span>3-5 電路交織點內部固定時延 (p_cross_delay)</span><span class="control-value" id="val_p_cross_delay">0.50</span></div>
+                        <input type="range" id="p_cross_delay" min="0.01" max="10.00" value="0.50" step="0.01">
                     </div>
                 </div>
             </div>
@@ -732,24 +732,24 @@
                 </div>
                 <div class="slider-grid">
                     <div class="control-group">
-                        <div class="control-label"><span>4-1 電位差主動放電功耗補償比例 (p_power_comp)</span><span class="control-value" id="val_p_power_comp">0.15</span></div>
-                        <input type="range" id="p_power_comp" min="0.0" max="0.4" value="0.15" step="0.01">
+                        <div class="control-label"><span>4-1 電位差主動放電功耗補償比例 (p_power_comp)</span><span class="control-value" id="val_p_power_comp">0.150</span></div>
+                        <input type="range" id="p_power_comp" min="0.000" max="1.000" value="0.150" step="0.001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>4-2 斷電備用電壓緊急維持時間 (p_backup_time)</span><span class="control-value" id="val_p_backup_time">5</span></div>
-                        <input type="range" id="p_backup_time" min="1" max="20" value="5" step="1">
+                        <div class="control-label"><span>4-2 斷電備用電壓緊急維持時間 (p_backup_time)</span><span class="control-value" id="val_p_backup_time">5.0</span></div>
+                        <input type="range" id="p_backup_time" min="0.1" max="100.0" value="5.0" step="0.1">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>4-3 漏電流與溫度熱耦合正回饋率 (p_leak_alpha)</span><span class="control-value" id="val_p_leak_alpha">0.005</span></div>
-                        <input type="range" id="p_leak_alpha" min="0.001" max="0.010" value="0.005" step="0.001">
+                        <div class="control-label"><span>4-3 漏電流與溫度熱耦合正回饋率 (p_leak_alpha)</span><span class="control-value" id="val_p_leak_alpha">0.0050</span></div>
+                        <input type="range" id="p_leak_alpha" min="0.0001" max="0.0500" value="0.0050" step="0.0001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>4-4 雙迴路負載平衡切換閾值 (p_load_bal)</span><span class="control-value" id="val_p_load_bal">1.0</span></div>
-                        <input type="range" id="p_load_bal" min="0.5" max="1.5" value="1.0" step="0.1">
+                        <div class="control-label"><span>4-4 雙迴路負載平衡切換閾值 (p_load_bal)</span><span class="control-value" id="val_p_load_bal">1.00</span></div>
+                        <input type="range" id="p_load_bal" min="0.10" max="5.00" value="1.00" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>4-5 核心基準線路工作穩壓電壓 (p_vdd_volt)</span><span class="control-value" id="val_p_vdd_volt">0.9</span></div>
-                        <input type="range" id="p_vdd_volt" min="0.6" max="1.4" value="0.9" step="0.05">
+                        <div class="control-label"><span>4-5 核心基準線路工作穩壓電壓 (p_vdd_volt)</span><span class="control-value" id="val_p_vdd_volt">0.900</span></div>
+                        <input type="range" id="p_vdd_volt" min="0.200" max="3.000" value="0.900" step="0.001">
                     </div>
                 </div>
             </div>
@@ -783,24 +783,24 @@
                 </div>
                 <div class="slider-grid">
                     <div class="control-group">
-                        <div class="control-label"><span>5-1 光傳輸通道衰減與環境雜訊比 (p_opt_noise)</span><span class="control-value" id="val_p_opt_noise">0.05</span></div>
-                        <input type="range" id="p_opt_noise" min="0.0" max="0.3" value="0.05" step="0.01">
+                        <div class="control-label"><span>5-1 光傳輸通道衰減與環境雜訊比 (p_opt_noise)</span><span class="control-value" id="val_p_opt_noise">0.050</span></div>
+                        <input type="range" id="p_opt_noise" min="0.000" max="1.000" value="0.050" step="0.001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>5-2 多Agent解碼仲裁機制容錯係數 (p_agent_tol)</span><span class="control-value" id="val_p_agent_tol">0.9</span></div>
-                        <input type="range" id="p_agent_tol" min="0.5" max="1.0" value="0.9" step="0.05">
+                        <div class="control-label"><span>5-2 多Agent解碼仲裁機制容錯係數 (p_agent_tol)</span><span class="control-value" id="val_p_agent_tol">0.900</span></div>
+                        <input type="range" id="p_agent_tol" min="0.100" max="1.000" value="0.900" step="0.001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>5-3 比例區間光學信號調變寬度 (p_opt_interval)</span><span class="control-value" id="val_p_opt_interval">0.15</span></div>
-                        <input type="range" id="p_opt_interval" min="0.05" max="0.25" value="0.15" step="0.01">
+                        <div class="control-label"><span>5-3 比例區間光學信號調變寬度 (p_opt_interval)</span><span class="control-value" id="val_p_opt_interval">0.150</span></div>
+                        <input type="range" id="p_opt_interval" min="0.001" max="1.000" value="0.150" step="0.001">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>5-4 波導介質光學信號衰減係數 (p_opt_atten)</span><span class="control-value" id="val_p_opt_atten">0.3</span></div>
-                        <input type="range" id="p_opt_atten" min="0.1" max="1.0" value="0.3" step="0.1">
+                        <div class="control-label"><span>5-4 波導介質光學信號衰減係數 (p_opt_atten)</span><span class="control-value" id="val_p_opt_atten">0.30</span></div>
+                        <input type="range" id="p_opt_atten" min="0.01" max="5.00" value="0.30" step="0.01">
                     </div>
                     <div class="control-group">
-                        <div class="control-label"><span>5-5 解碼錯誤重傳時序懲罰 (p_retrans_p)</span><span class="control-value" id="val_p_retrans_p">2.0</span></div>
-                        <input type="range" id="p_retrans_p" min="1.0" max="5.0" value="2.0" step="0.1">
+                        <div class="control-label"><span>5-5 解碼錯誤重傳時序懲罰 (p_retrans_p)</span><span class="control-value" id="val_p_retrans_p">2.00</span></div>
+                        <input type="range" id="p_retrans_p" min="1.00" max="20.00" value="2.00" step="0.01">
                     </div>
                 </div>
             </div>
@@ -925,11 +925,11 @@
     <script>
         // 1. 出廠預設值庫 (DEFAULT_CONFIG)
         const DEFAULT_CONFIG = {
-            sw_geom: true, p_layers: 6, p_geo_density: 1.2, p_inter_r: 0.25, p_die_thick: 150, p_si_cond: 148,
-            sw_thermal: true, p_cooling_temp: 65, p_valve_k: 1.5, p_tec_eff: 0.08, p_latent_k: 2.2, p_reflux_rate: 1.0,
-            sw_routing: true, p_traffic_th: 5.0, p_tsv_speed: 2.5, p_imp_factor: 0.02, p_queue_size: 64, p_cross_delay: 0.5,
-            sw_power: true, p_power_comp: 0.15, p_backup_time: 5, p_leak_alpha: 0.005, p_load_bal: 1.0, p_vdd_volt: 0.9,
-            sw_optics: true, p_opt_noise: 0.05, p_agent_tol: 0.9, p_opt_interval: 0.15, p_opt_atten: 0.3, p_retrans_p: 2.0
+            sw_geom: true, p_layers: 6, p_geo_density: 1.20, p_inter_r: 0.250, p_die_thick: 150, p_si_cond: 148.0,
+            sw_thermal: true, p_cooling_temp: 65.0, p_valve_k: 1.50, p_tec_eff: 0.080, p_latent_k: 2.20, p_reflux_rate: 1.00,
+            sw_routing: true, p_traffic_th: 5.00, p_tsv_speed: 2.50, p_imp_factor: 0.0200, p_queue_size: 64, p_cross_delay: 0.50,
+            sw_power: true, p_power_comp: 0.150, p_backup_time: 5.0, p_leak_alpha: 0.0050, p_load_bal: 1.00, p_vdd_volt: 0.900,
+            sw_optics: true, p_opt_noise: 0.050, p_agent_tol: 0.900, p_opt_interval: 0.150, p_opt_atten: 0.30, p_retrans_p: 2.00
         };
 
         const MODULE_PARAMS = {
@@ -974,45 +974,45 @@
             });
         }
 
-        // 新功能：輸入 TDP 自動推算 23 項參數
+        // 輸入 TDP 自動推算 23 項參數 (根據擴充範圍調整)
         function applyAutoCalculation() {
             const tdp = parseFloat(document.getElementById('target-tdp').value) || 250;
             const ratio = tdp / 250.0; // 以 250W 為標準基準比率
 
             // 1. 幾何
-            setVal('p_layers', Math.min(24, Math.max(1, Math.round(6 * Math.sqrt(ratio)))));
-            setVal('p_geo_density', (1.2 * Math.pow(ratio, 0.25)).toFixed(1));
-            setVal('p_inter_r', (0.25 / Math.sqrt(ratio)).toFixed(2));
-            setVal('p_die_thick', Math.min(300, Math.max(50, Math.round(150 * ratio))));
-            setVal('p_si_cond', Math.min(200, Math.max(80, Math.round(148 + (ratio - 1) * 20))));
+            setVal('p_layers', Math.min(64, Math.max(1, Math.round(6 * Math.sqrt(ratio)))));
+            setVal('p_geo_density', Math.min(10.0, Math.max(0.1, 1.2 * Math.pow(ratio, 0.25))).toFixed(2));
+            setVal('p_inter_r', Math.min(2.000, Math.max(0.001, 0.25 / Math.sqrt(ratio))).toFixed(3));
+            setVal('p_die_thick', Math.min(1000, Math.max(10, Math.round(150 * ratio))));
+            setVal('p_si_cond', Math.min(500.0, Math.max(10.0, 148.0 + (ratio - 1) * 20)).toFixed(1));
 
             // 2. 相變散熱
-            setVal('p_cooling_temp', Math.min(85, Math.max(45, Math.round(65 - (ratio - 1) * 10))));
-            setVal('p_valve_k', (1.5 * ratio).toFixed(1));
-            setVal('p_tec_eff', (Math.min(0.2, 0.08 * ratio)).toFixed(2));
-            setVal('p_latent_k', (2.2 * Math.sqrt(ratio)).toFixed(1));
-            setVal('p_reflux_rate', (1.0 * ratio).toFixed(1));
+            setVal('p_cooling_temp', Math.min(150.0, Math.max(10.0, 65.0 - (ratio - 1) * 10)).toFixed(1));
+            setVal('p_valve_k', Math.min(10.00, Math.max(0.01, 1.5 * ratio)).toFixed(2));
+            setVal('p_tec_eff', Math.min(0.500, Math.max(0.000, 0.08 * ratio)).toFixed(3));
+            setVal('p_latent_k', Math.min(20.00, Math.max(0.10, 2.2 * Math.sqrt(ratio))).toFixed(2));
+            setVal('p_reflux_rate', Math.min(10.00, Math.max(0.01, 1.0 * ratio)).toFixed(2));
 
             // 3. 路由
-            setVal('p_traffic_th', (5.0 / Math.sqrt(ratio)).toFixed(1));
-            setVal('p_tsv_speed', (2.5 * ratio).toFixed(1));
-            setVal('p_imp_factor', (Math.min(0.05, 0.02 * ratio)).toFixed(3));
-            setVal('p_queue_size', Math.min(128, Math.max(16, Math.round(64 * ratio))));
-            setVal('p_cross_delay', (0.5 / Math.sqrt(ratio)).toFixed(1));
+            setVal('p_traffic_th', Math.min(50.00, Math.max(0.10, 5.0 / Math.sqrt(ratio))).toFixed(2));
+            setVal('p_tsv_speed', Math.min(20.00, Math.max(0.10, 2.5 * ratio)).toFixed(2));
+            setVal('p_imp_factor', Math.min(0.2000, Math.max(0.0001, 0.02 * ratio)).toFixed(4));
+            setVal('p_queue_size', Math.min(512, Math.max(4, Math.round(64 * ratio))));
+            setVal('p_cross_delay', Math.min(10.00, Math.max(0.01, 0.5 / Math.sqrt(ratio))).toFixed(2));
 
             // 4. 雙迴路供電
-            setVal('p_power_comp', (Math.min(0.4, 0.15 * ratio)).toFixed(2));
-            setVal('p_backup_time', Math.min(20, Math.max(1, Math.round(5 * ratio))));
-            setVal('p_leak_alpha', (Math.min(0.010, 0.005 * ratio)).toFixed(3));
-            setVal('p_load_bal', (1.0 * ratio).toFixed(1));
-            setVal('p_vdd_volt', (Math.min(1.4, Math.max(0.6, 0.9 + (ratio - 1) * 0.1))).toFixed(2));
+            setVal('p_power_comp', Math.min(1.000, Math.max(0.000, 0.15 * ratio)).toFixed(3));
+            setVal('p_backup_time', Math.min(100.0, Math.max(0.1, 5.0 * ratio)).toFixed(1));
+            setVal('p_leak_alpha', Math.min(0.0500, Math.max(0.0001, 0.005 * ratio)).toFixed(4));
+            setVal('p_load_bal', Math.min(5.00, Math.max(0.10, 1.0 * ratio)).toFixed(2));
+            setVal('p_vdd_volt', Math.min(3.000, Math.max(0.200, 0.9 + (ratio - 1) * 0.1)).toFixed(3));
 
             // 5. 光學
-            setVal('p_opt_noise', (Math.min(0.3, 0.05 * ratio)).toFixed(2));
-            setVal('p_agent_tol', (Math.min(1.0, 0.9 * Math.sqrt(ratio))).toFixed(2));
-            setVal('p_opt_interval', (Math.min(0.25, 0.15 * ratio)).toFixed(2));
-            setVal('p_opt_atten', (0.3 / Math.sqrt(ratio)).toFixed(1));
-            setVal('p_retrans_p', (2.0 * Math.sqrt(ratio)).toFixed(1));
+            setVal('p_opt_noise', Math.min(1.000, Math.max(0.000, 0.05 * ratio)).toFixed(3));
+            setVal('p_agent_tol', Math.min(1.000, Math.max(0.100, 0.9 * Math.sqrt(ratio))).toFixed(3));
+            setVal('p_opt_interval', Math.min(1.000, Math.max(0.001, 0.15 * ratio)).toFixed(3));
+            setVal('p_opt_atten', Math.min(5.00, Math.max(0.01, 0.3 / Math.sqrt(ratio))).toFixed(2));
+            setVal('p_retrans_p', Math.min(20.00, Math.max(1.00, 2.0 * Math.sqrt(ratio))).toFixed(2));
         }
 
         function setVal(id, val) {
