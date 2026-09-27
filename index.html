@@ -2,942 +2,993 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>🛸 CubeSim Pro Studio — 晶片多物理量完全解耦模擬系統</title>
-    <!-- 引入 Chart.js 科學圖表庫 -->
-    <script src="https://jsdelivr.net"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D IC 多物理量交叉耦合熱邏輯模擬系統</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #030712; /* 半導體無塵室深黑底色 */
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: rgba(20, 27, 45, 0.75);
+            --panel-border: rgba(0, 240, 255, 0.2);
+            --primary: #00f0ff;
+            --primary-hover: #70f8ff;
+            --secondary: #7000ff;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent-red: #ff3366;
+            --accent-green: #00ff66;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            color: #f1f5f9;
-            overflow: hidden; /* 鎖死外層滾動條，確保系統級全畫面切換體驗 */
+            user-select: none;
         }
-        .app-wrapper {
-            display: flex;
-            flex-direction: column;
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 鎖死外層瀏覽器滾動條 */
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(112, 0, 255, 0.05) 0%, transparent 40%);
+        }
+
+        /* 幻燈片全螢幕容器 */
+        #slider-container {
             width: 100vw;
             height: 100vh;
-            box-sizing: border-box;
-            padding: 25px;
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        header {
-            text-align: center;
-            margin-bottom: 20px;
+
+        .step-page {
+            width: 100vw;
+            height: 100vh;
             flex-shrink: 0;
-        }
-        header h1 {
-            color: #38bdf8;
-            margin: 0;
-            font-size: 24px;
-            letter-spacing: 1px;
-        }
-        header .subtitle {
-            color: #475569;
-            font-size: 13px;
-            margin-top: 4px;
-        }
-        /* 💡 核心改動：全畫面步驟切換視窗 (Fullscreen Step Panels) */
-        .step-panel {
-            display: none; /* 預設全數隱藏，由 JS 控制前後換頁 */
-            flex-grow: 1;
-            min-height: 0;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-        }
-        .step-panel.active {
-            display: flex; /* 啟動的步驟畫面會直接鋪滿整個畫面 */
-        }
-        .config-container {
-            background: #090d16;
-            border: 1px solid #1e293b;
-            border-top: 4px solid #38bdf8;
-            padding: 25px;
-            border-radius: 8px;
-            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: hidden; /* 嚴禁滑動，確保一頁剛好塞滿一個模組 */
+            justify-content: space-between;
+            padding: 2.5rem 4rem;
+            position: relative;
         }
-        .panel-header-row {
+
+        /* 頁首標題 */
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #1e293b;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-            flex-shrink: 0;
+            border-bottom: 2px solid var(--panel-border);
+            padding-bottom: 1rem;
         }
-        .panel-title {
-            font-weight: bold;
-            color: #38bdf8;
-            font-size: 16px;
-        }
-        .btn-reset-module {
-            background: #1e293b;
-            color: #94a3b8;
-            border: 1px solid #334155;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-        }
-        .btn-reset-module:hover {
-            background: #ef4444;
-            color: white;
-            border-color: #ef4444;
-        }
-        /* 💡 21項機制超多滑桿的專用雙列網格排版 */
-        .sliders-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px 40px;
-            flex-grow: 1;
-            align-content: start;
-        }
-        .param-row {
-            display: flex;
-            flex-direction: column;
-        }
-        .param-row label {
-            display: block;
-            font-size: 13px;
-            color: #94a3b8;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-        .slider-container {
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .slider-container input {
-            flex: 1;
-            height: 6px;
+
+        /* 模組卡片內容區 */
+        .module-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .switch-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
             cursor: pointer;
-            accent-color: #38bdf8;
         }
-        .slider-val {
-            width: 60px;
-            text-align: right;
-            font-size: 13px;
+
+        /* 控制列與滑桿 */
+        .slider-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem 2.5rem;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .control-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .control-value {
+            color: var(--primary);
             font-weight: bold;
-            color: #38bdf8;
-            background: #030712;
-            padding: 3px 8px;
-            border-radius: 4px;
-            border: 1px solid #1e293b;
+            font-family: monospace;
+            font-size: 1.05rem;
         }
-        .bottom-action-bar {
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary);
+            transition: all 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            scale: 1.2;
+            background: #fff;
+        }
+
+        /* 導覽按鈕列 */
+        .nav-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding-top: 20px;
-            border-top: 1px solid #1e293b;
-            margin-top: 20px;
-            flex-shrink: 0;
+            padding-top: 1rem;
         }
-        .btn-nav {
-            padding: 10px 24px;
-            background: #1e293b;
-            color: #cbd5e1;
-            border: 1px solid #334155;
+
+        .btn {
+            padding: 0.8rem 2rem;
+            border: 1px solid var(--primary);
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
             border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .btn-nav:hover {
-            background: #334155;
-            color: white;
+
+        .btn:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
         }
-        .btn-run-final {
-            padding: 10px 28px;
-            background: #0284c7;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
+
+        .btn-reset {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            background: transparent;
         }
-        .btn-run-final:hover {
-            background: #10b981;
-            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+
+        .btn-reset:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+            background: rgba(255, 51, 102, 0.1);
+            box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
         }
-        /* 📊 運算渲染階段專用滿版佈局 */
-        .execution-layout {
+
+        .btn-commit {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+            background: rgba(0, 255, 102, 0.1);
+        }
+
+        .btn-commit:hover {
+            background: var(--accent-green);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+        }
+
+        /* Step 6 運算面板佈局 */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            flex-grow: 1;
-            min-height: 0;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1.5rem;
+            height: 100%;
         }
+
         .chart-box {
-            background: #090d16;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #1e293b;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
-            min-height: 0;
+            position: relative;
         }
-        .chart-box canvas {
-            flex-grow: 1;
-            min-height: 0;
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
         }
-        .data-card {
-            background: #090d16;
-            padding: 10px;
+
+        .layer-toggles {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .layer-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-muted);
+            padding: 2px 8px;
             border-radius: 4px;
-            text-align: center;
-            border: 1px solid #1e293b;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
-        .data-card div:first-child { font-size: 11px; color: #94a3b8; }
-        .data-card div:last-child { font-size: 14px; font-weight: bold; color: #38bdf8; margin-top: 3px; }
-        .data-table {
+
+        .layer-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 240, 255, 0.15);
+        }
+
+        .canvas-container {
+            flex-grow: 1;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            grid-row: span 2;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.1s linear;
+        }
+
+        .metrics-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .metric-card-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .metric-card-value {
+            font-size: 1.5rem;
+            font-family: monospace;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 4px;
+        }
+
+        /* 燈箱 Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(5, 8, 15, 0.85);
+            backdrop-filter: blur(16px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            width: 90vw;
+            height: 85vh;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+        }
+
+        .log-table-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: left;
         }
-        .data-table th, .data-table td {
-            border: 1px solid #1e293b;
-            padding: 6px;
-            text-align: center;
+
+        th, td {
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .data-table th {
-            background: #090d16;
-            color: #38bdf8;
+
+        th {
+            background: rgba(0, 240, 255, 0.1);
+            color: var(--primary);
             position: sticky;
             top: 0;
+            backdrop-filter: blur(4px);
         }
-        .data-table tr:nth-child(even) { background: #050811; }
+
+        tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        tr:hover {
+            background: rgba(0, 240, 255, 0.05);
+        }
     </style>
 </head>
 <body>
-<div class="app-wrapper">
-    <header>
-        <h1>🛸 CubeSim Pro Studio</h1>
-        <div class="subtitle">大廠級 EDA 架構 — 全畫面五大步驟參數/運算完全獨立分離場景</div>
-    </header>
 
-    <!-- ================= 🌐 步驟一：全畫面模組一配置 ================= -->
-    <div id="step_1" class="step-panel active">
-        <div class="config-container">
-            <div class="panel-header-row">
-                <div class="panel-title">🌐 模組一：空間幾何與分層系統 (頁面 1/6)</div>
-                <button class="btn-reset-module" onclick="resetModule('geom')">重置本模組</button>
+    <div id="slider-container">
+        <!-- STEP 1 -->
+        <div class="step-page" id="step-1">
+            <div class="page-header">
+                <div class="page-title">🌐 模組一：空間幾何與分層系統</div>
+                <button class="btn btn-reset" onclick="resetModule(1)">重置本模組</button>
             </div>
-            
-            <div class="sliders-grid">
-                <div class="param-row">
-                    <label>1-1 基礎晶片設計層數 (Layers):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_layers" min="1" max="24" value="6" step="1" oninput="document.getElementById('v_layers').innerText=this.value">
-                        <span class="slider-val" id="v_layers">6</span>
-                    </div>
+            <div class="module-card">
+                <div class="switch-container">
+                    <input type="checkbox" id="sw_geom" checked>
+                    <label for="sw_geom">啟用幾何與體積縮放子系統</label>
                 </div>
-                <div class="param-row">
-                    <label>1-2 體積功耗積壓係數 (Density Factor):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_geo_density" min="1.0" max="3.0" value="1.2" step="0.1" oninput="document.getElementById('v_geo_density').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_geo_density">1.2</span>
+                <div class="slider-grid">
+                    <div class="control-group">
+                        <div class="control-label"><span>1-1 基礎晶片設計層數 (p_layers)</span><span class="control-value" id="val_p_layers">6</span></div>
+                        <input type="range" id="p_layers" min="1" max="24" value="6" step="1">
                     </div>
-                </div>
-                <div class="param-row">
-                    <label>1-3 層間介面熱阻阻抗 (Inter-layer Thermal R):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_inter_r" min="0.05" max="0.50" value="0.25" step="0.01" oninput="document.getElementById('v_inter_r').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_inter_r">0.25</span>
+                    <div class="control-group">
+                        <div class="control-label"><span>1-2 體積功耗積壓係數 (p_geo_density)</span><span class="control-value" id="val_p_geo_density">1.2</span></div>
+                        <input type="range" id="p_geo_density" min="1.0" max="3.0" value="1.2" step="0.1">
                     </div>
-                </div>
-                <div class="param-row">
-                    <label>1-4 3D 封裝垂直層高基底 (Die Thickness μm):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_die_thick" min="50" max="300" value="150" step="10" oninput="document.getElementById('v_die_thick').innerText=this.value">
-                        <span class="slider-val" id="v_die_thick">150</span>
+                    <div class="control-group">
+                        <div class="control-label"><span>1-3 層間介面熱阻阻抗 (p_inter_r)</span><span class="control-value" id="val_p_inter_r">0.25</span></div>
+                        <input type="range" id="p_inter_r" min="0.05" max="0.50" value="0.25" step="0.01">
                     </div>
-                </div>
-                <div class="param-row">
-                    <label>1-5 矽基底材料金屬物導熱率 (Si Conductivity):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_si_cond" min="80" max="200" value="148" step="2" oninput="document.getElementById('v_si_cond').innerText=this.value">
-                        <span class="slider-val" id="v_si_cond">148</span>
+                    <div class="control-group">
+                        <div class="control-label"><span>1-4 3D 封裝垂直層高基底 (p_die_thick)</span><span class="control-value" id="val_p_die_thick">150</span></div>
+                        <input type="range" id="p_die_thick" min="50" max="300" value="150" step="5">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>1-5 矽基底材料導熱率 (p_si_cond)</span><span class="control-value" id="val_p_si_cond">148</span></div>
+                        <input type="range" id="p_si_cond" min="80" max="200" value="148" step="1">
                     </div>
                 </div>
             </div>
-            
-            <div class="bottom-action-bar">
-                <span style="font-size: 13px; color: #475569;">調整幾何參數時，右側數據與圖表保持完全分離不連動</span>
-                <button class="btn-nav" onclick="changeStep(2)">下一頁：模組二 ➡️</button>
+            <div class="nav-footer">
+                <div></div>
+                <button class="btn" onclick="nextStep(2)">下一頁 ➔</button>
             </div>
         </div>
-    </div>
-    <!-- ================= 🌬️ 步驟二：全畫面模組二配置 ================= -->
-    <div id="step_2" class="step-panel">
-        <div class="config-container">
-            <div class="panel-header-row">
-                <div class="panel-title">🌬️ 模組二：相變液冷與電子回收散熱 (頁面 2/6)</div>
-                <button class="btn-reset-module" onclick="resetModule('thermal')">重置本模組</button>
-            </div>
-            
-            <div class="sliders-grid">
-                <div class="param-row">
-                    <label>2-1 相變汽化臨界溫度閾值 (°C):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_cooling_temp" min="40" max="90" value="65" step="1" oninput="document.getElementById('v_cooling_temp').innerText=this.value">
-                        <span class="slider-val" id="v_cooling_temp">65</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>2-2 微通道閥門動態流量係數 (Valve K):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_valve_k" min="0.5" max="3.0" value="1.5" step="0.1" oninput="document.getElementById('v_valve_k').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_valve_k">1.5</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>2-3 廢熱回收熱電轉換效率 (Thermoelectric %):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_tec_eff" min="0.0" max="0.2" value="0.08" step="0.01" oninput="document.getElementById('v_tec_eff').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_tec_eff">0.08</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>2-4 液體冷卻劑汽化潛熱係數 (Latent Heat Coeff):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_latent_k" min="1.0" max="5.0" value="2.2" step="0.1" oninput="document.getElementById('v_latent_k').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_latent_k">2.2</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>2-5 封閉管道冷凝回流循環速率 (Reflux Rate):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_reflux_rate" min="0.1" max="2.0" value="1.0" step="0.1" oninput="document.getElementById('v_reflux_rate').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_reflux_rate">1.0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bottom-action-bar">
-                <button class="btn-nav" onclick="changeStep(1)">⬅️ 上一頁：模組一</button>
-                <button class="btn-nav" onclick="changeStep(3)">下一頁：模組三 ➡️</button>
-            </div>
-        </div>
-    </div>
-    <!-- ================= 🚦 步驟三：全畫面模組三配置 ================= -->
-    <div id="step_3" class="step-panel">
-        <div class="config-container">
-            <div class="panel-header-row">
-                <div class="panel-title">🚦 模組三：時序紅綠燈與多元替代路徑 (頁面 3/6)</div>
-                <button class="btn-reset-module" onclick="resetModule('routing')">重置本模組</button>
-            </div>
-            
-            <div class="sliders-grid">
-                <div class="param-row">
-                    <label>3-1 紅綠燈切換擁堵延遲閾值 (Threshold):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_traffic_th" min="1.0" max="10.0" value="5.0" step="0.5" oninput="document.getElementById('v_traffic_th').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_traffic_th">5.0</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>3-2 TSV 立體電梯/天橋傳輸優化增益 (Gain):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_tsv_speed" min="1.0" max="5.0" value="2.5" step="0.1" oninput="document.getElementById('v_tsv_speed').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_tsv_speed">2.5</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>3-3 高溫漏電流阻抗劣化係數 (Thermal Imp Factor):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_imp_factor" min="0.01" max="0.05" value="0.02" step="0.01" oninput="document.getElementById('v_imp_factor').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_imp_factor">0.02</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>3-4 路由緩衝排隊佇列最大容量 (Queue Buffer Size):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_queue_size" min="16" max="128" value="64" step="8" oninput="document.getElementById('v_queue_size').innerText=this.value">
-                        <span class="slider-val" id="v_queue_size">64</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>3-5 電路交織點內部固定時延 (Crossbar Delay ns):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_cross_delay" min="0.1" max="1.5" value="0.5" step="0.1" oninput="document.getElementById('v_cross_delay').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_cross_delay">0.5</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bottom-action-bar">
-                <button class="btn-nav" onclick="changeStep(2)">⬅️ 上一頁：模組二</button>
-                <button class="btn-nav" onclick="changeStep(4)">下一頁：模組四 ➡️</button>
-            </div>
-        </div>
-    </div>
-    <!-- ================= ⚡ 步驟四：全畫面模組四配置 ================= -->
-    <div id="step_4" class="step-panel">
-        <div class="config-container">
-            <div class="panel-header-row">
-                <div class="panel-title">⚡ 模組四：平行雙迴路與放電供電系統 (頁面 4/6)</div>
-                <button class="btn-reset-module" onclick="resetModule('power')">重置本模組</button>
-            </div>
-            
-            <div class="sliders-grid">
-                <div class="param-row">
-                    <label>4-1 電位差主動放電功耗補償比例 (%):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_power_comp" min="0.0" max="0.4" value="0.15" step="0.05" oninput="document.getElementById('v_power_comp').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_power_comp">0.15</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>4-2 斷電備用電壓緊急維持時間 (μs):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_backup_time" min="1" max="20" value="5" step="1" oninput="document.getElementById('v_backup_time').innerText=this.value">
-                        <span class="slider-val" id="v_backup_time">5</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>4-3 漏電流與溫度熱耦合正回饋率 (Leakage Alpha):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_leak_alpha" min="0.001" max="0.010" value="0.005" step="0.001" oninput="document.getElementById('v_leak_alpha').innerText=parseFloat(this.value).toFixed(3)">
-                        <span class="slider-val" id="v_leak_alpha">0.005</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>4-4 雙迴路負載平衡切換閾值 (Load Balance Th):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_load_bal" min="0.5" max="1.5" value="1.0" step="0.1" oninput="document.getElementById('v_load_bal').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_load_bal">1.0</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>4-5 核心基準線路工作穩壓電壓 (VDD Voltage):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_vdd_volt" min="0.6" max="1.4" value="0.9" step="0.05" oninput="document.getElementById('v_vdd_volt').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_vdd_volt">0.9</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bottom-action-bar">
-                <button class="btn-nav" onclick="changeStep(3)">⬅️ 上一頁：模組三</button>
-                <button class="btn-nav" onclick="changeStep(5)">下一頁：模組五 ➡️</button>
-            </div>
-        </div>
-    </div>
-    <!-- ================= 🚀 步驟五：全畫面模組五配置 ================= -->
-    <div id="step_5" class="step-panel">
-        <div class="config-container">
-            <div class="panel-header-row">
-                <div class="panel-title">🚀 模組五：三模非均質與光學傳輸系統 (頁面 5/6)</div>
-                <button class="btn-reset-module" onclick="resetModule('optics')">重置本模組</button>
-            </div>
-            
-            <div class="sliders-grid">
-                <div class="param-row">
-                    <label>5-1 光傳輸通道衰減與環境雜訊比 (Noise):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_opt_noise" min="0.0" max="0.3" value="0.05" step="0.01" oninput="document.getElementById('v_opt_noise').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_opt_noise">0.05</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>5-2 多Agent解碼仲裁機制容錯係數 (Tolerance):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_agent_tol" min="0.5" max="1.0" value="0.9" step="0.05" oninput="document.getElementById('v_agent_tol').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_agent_tol">0.9</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>5-3 比例區間光學信號調變寬度 (Interval Width):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_opt_interval" min="0.05" max="0.25" value="0.15" step="0.01" oninput="document.getElementById('v_opt_interval').innerText=parseFloat(this.value).toFixed(2)">
-                        <span class="slider-val" id="v_opt_interval">0.15</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>5-4 波導介質光學信號衰減係数 (Attenuation dB):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_opt_atten" min="0.1" max="1.0" value="0.3" step="0.1" oninput="document.getElementById('v_opt_atten').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_opt_atten">0.3</span>
-                    </div>
-                </div>
-                <div class="param-row">
-                    <label>5-5 解碼錯誤重傳時序懲罰 (Retransmit Penalty):</label>
-                    <div class="slider-container">
-                        <input type="range" id="p_retrans_p" min="1.0" max="5.0" value="2.0" step="0.5" oninput="document.getElementById('v_retrans_p').innerText=parseFloat(this.value).toFixed(1)">
-                        <span class="slider-val" id="v_retrans_p">2.0</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="bottom-action-bar">
-                <button class="btn-nav" onclick="changeStep(4)">⬅️ 上一頁：模組四</button>
-                <button class="btn-run-final" style="background:#0284c7;" onclick="commitAndRunSimulation()">🚀 確認設定並進階到運算渲染頁</button>
-            </div>
-        </div>
-    </div>
-    <!-- ================= 📊 步驟六：全畫面數據圖表渲染面板 ================= -->
-    <div id="step_6" class="step-panel">
-        <div class="config-container" style="overflow-y: auto;">
-            <div class="panel-header-row">
-                <div class="panel-title">📊 3D Cube Chip 多物理量運算渲染中心 (頁面 6/6)</div>
-                <div class="legend-toggle-container" id="legendContainer" style="margin: 0; padding: 4px;"></div>
-            </div>
 
-            <!-- 兩大對稱滿版科學圖表 -->
-            <div class="execution-layout">
-                <div class="chart-box">
-                    <canvas id="thermalChart"></canvas>
-                </div>
-                <div class="chart-box">
-                    <canvas id="latencyChart"></canvas>
-                </div>
+        <!-- STEP 2 -->
+        <div class="step-page" id="step-2">
+            <div class="page-header">
+                <div class="page-title">🌬️ 模組二：相變液冷與電子回收散熱</div>
+                <button class="btn btn-reset" onclick="resetModule(2)">重置本模組</button>
             </div>
-
-            <!-- 數據卡片與即時狀態列 -->
-            <div style="display: grid; grid-template-columns: 320px repeat(4, 1fr); gap: 15px; margin-top: 15px; align-items: center; flex-shrink: 0;">
-                <div style="background: #030712; padding: 12px; border-radius: 6px; border: 1px solid #1e293b;">
-                    <div style="font-size: 11px; color: #94a3b8; font-weight: bold;" id="runStatusText">準備執行運算...</div>
-                    <div class="progress-container" style="margin-top: 8px; margin-bottom: 0;">
-                        <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+            <div class="module-card">
+                <div class="switch-container">
+                    <input type="checkbox" id="sw_thermal" checked>
+                    <label for="sw_thermal">啟用相變液冷散熱物理模型</label>
+                </div>
+                <div class="slider-grid">
+                    <div class="control-group">
+                        <div class="control-label"><span>2-1 相變汽化臨界溫度閾值 (p_cooling_temp)</span><span class="control-value" id="val_p_cooling_temp">65</span></div>
+                        <input type="range" id="p_cooling_temp" min="40" max="90" value="65" step="1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>2-2 微通道閥門動態流量係數 (p_valve_k)</span><span class="control-value" id="val_p_valve_k">1.5</span></div>
+                        <input type="range" id="p_valve_k" min="0.5" max="3.0" value="1.5" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>2-3 廢熱回收熱電轉換效率 (p_tec_eff)</span><span class="control-value" id="val_p_tec_eff">0.08</span></div>
+                        <input type="range" id="p_tec_eff" min="0.0" max="0.2" value="0.08" step="0.01">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>2-4 液體冷卻劑汽化潛熱係數 (p_latent_k)</span><span class="control-value" id="val_p_latent_k">2.2</span></div>
+                        <input type="range" id="p_latent_k" min="1.0" max="5.0" value="2.2" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>2-5 封閉管道冷凝回流循環速率 (p_reflux_rate)</span><span class="control-value" id="val_p_reflux_rate">1.0</span></div>
+                        <input type="range" id="p_reflux_rate" min="0.1" max="2.0" value="1.0" step="0.1">
                     </div>
                 </div>
-                <div class="data-card"><div>最高峰值溫度</div><div id="d_max_temp">-- °C</div></div>
-                <div class="data-card"><div>平均訊號延遲</div><div id="d_avg_lat">--</div></div>
-                <div class="data-card"><div>平均資料吞吐量</div><div id="d_avg_thr">-- %</div></div>
-                <div class="data-card"><div>預估系統訊號誤碼率</div><div id="d_ber_val">--</div></div>
             </div>
+            <div class="nav-footer">
+                <button class="btn" onclick="nextStep(1)">⬅ 上一頁</button>
+                <button class="btn" onclick="nextStep(3)">下一頁 ➔</button>
+            </div>
+        </div>
 
-            <div class="bottom-action-bar">
-                <button class="btn-nav" onclick="backToConfigStage()">⬅️ 返回修改參數架喚</button>
-                <div class="summary-box" id="summaryBox" style="flex-grow: 1; margin: 0 20px; padding: 10px; font-size: 12px;">
-                    點擊右側按鈕可呼叫高密度底層數據日誌燈箱，檢視 full 偏微分收斂矩陣。
+        <!-- STEP 3 -->
+        <div class="step-page" id="step-3">
+            <div class="page-header">
+                <div class="page-title">🚦 模組三：時序紅綠燈與多元替代路徑</div>
+                <button class="btn btn-reset" onclick="resetModule(3)">重置本模組</button>
+            </div>
+            <div class="module-card">
+                <div class="switch-container">
+                    <input type="checkbox" id="sw_routing" checked>
+                    <label for="sw_routing">啟用 3D 路由與動態時脈調度</label>
                 </div>
-                <button class="btn-run-final" style="background: #10b981;" onclick="toggleDataLogModal()">📋 檢視高密度純數據日誌</button>
+                <div class="slider-grid">
+                    <div class="control-group">
+                        <div class="control-label"><span>3-1 紅綠燈切換擁堵延遲閾值 (p_traffic_th)</span><span class="control-value" id="val_p_traffic_th">5.0</span></div>
+                        <input type="range" id="p_traffic_th" min="1.0" max="10.0" value="5.0" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>3-2 TSV 立體電梯/天橋傳輸優化增益 (p_tsv_speed)</span><span class="control-value" id="val_p_tsv_speed">2.5</span></div>
+                        <input type="range" id="p_tsv_speed" min="1.0" max="5.0" value="2.5" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>3-3 高溫漏電流阻抗劣化係數 (p_imp_factor)</span><span class="control-value" id="val_p_imp_factor">0.02</span></div>
+                        <input type="range" id="p_imp_factor" min="0.01" max="0.05" value="0.02" step="0.005">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>3-4 路由緩衝排隊佇列最大容量 (p_queue_size)</span><span class="control-value" id="val_p_queue_size">64</span></div>
+                        <input type="range" id="p_queue_size" min="16" max="128" value="64" step="1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>3-5 電路交織點內部固定時延 (p_cross_delay)</span><span class="control-value" id="val_p_cross_delay">0.5</span></div>
+                        <input type="range" id="p_cross_delay" min="0.1" max="1.5" value="0.5" step="0.1">
+                    </div>
+                </div>
+            </div>
+            <div class="nav-footer">
+                <button class="btn" onclick="nextStep(2)">⬅ 上一頁</button>
+                <button class="btn" onclick="nextStep(4)">下一頁 ➔</button>
+            </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-page" id="step-4">
+            <div class="page-header">
+                <div class="page-title">⚡ 模組四：平行雙迴路與放電供電系統</div>
+                <button class="btn btn-reset" onclick="resetModule(4)">重置本模組</button>
+            </div>
+            <div class="module-card">
+                <div class="switch-container">
+                    <input type="checkbox" id="sw_power" checked>
+                    <label for="sw_power">啟用電位差動態放電補償機制</label>
+                </div>
+                <div class="slider-grid">
+                    <div class="control-group">
+                        <div class="control-label"><span>4-1 電位差主動放電功耗補償比例 (p_power_comp)</span><span class="control-value" id="val_p_power_comp">0.15</span></div>
+                        <input type="range" id="p_power_comp" min="0.0" max="0.4" value="0.15" step="0.01">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>4-2 斷電備用電壓緊急維持時間 (p_backup_time)</span><span class="control-value" id="val_p_backup_time">5</span></div>
+                        <input type="range" id="p_backup_time" min="1" max="20" value="5" step="1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>4-3 漏電流與溫度熱耦合正回饋率 (p_leak_alpha)</span><span class="control-value" id="val_p_leak_alpha">0.005</span></div>
+                        <input type="range" id="p_leak_alpha" min="0.001" max="0.010" value="0.005" step="0.001">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>4-4 雙迴路負載平衡切換閾值 (p_load_bal)</span><span class="control-value" id="val_p_load_bal">1.0</span></div>
+                        <input type="range" id="p_load_bal" min="0.5" max="1.5" value="1.0" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>4-5 核心基準線路工作穩壓電壓 (p_vdd_volt)</span><span class="control-value" id="val_p_vdd_volt">0.9</span></div>
+                        <input type="range" id="p_vdd_volt" min="0.6" max="1.4" value="0.9" step="0.05">
+                    </div>
+                </div>
+            </div>
+            <div class="nav-footer">
+                <button class="btn" onclick="nextStep(3)">⬅ 上一頁</button>
+                <button class="btn" onclick="nextStep(5)">下一頁 ➔</button>
+            </div>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="step-page" id="step-5">
+            <div class="page-header">
+                <div class="page-title">🚀 模組五：三模非均質與光學傳輸系統</div>
+                <button class="btn btn-reset" onclick="resetModule(5)">重置本模組</button>
+            </div>
+            <div class="module-card">
+                <div class="switch-container">
+                    <input type="checkbox" id="sw_optics" checked>
+                    <label for="sw_optics">啟用比例區間光學信號調變</label>
+                </div>
+                <div class="slider-grid">
+                    <div class="control-group">
+                        <div class="control-label"><span>5-1 光傳輸通道衰減與環境雜訊比 (p_opt_noise)</span><span class="control-value" id="val_p_opt_noise">0.05</span></div>
+                        <input type="range" id="p_opt_noise" min="0.0" max="0.3" value="0.05" step="0.01">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>5-2 多Agent解碼仲裁機制容錯係數 (p_agent_tol)</span><span class="control-value" id="val_p_agent_tol">0.9</span></div>
+                        <input type="range" id="p_agent_tol" min="0.5" max="1.0" value="0.9" step="0.05">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>5-3 比例區間光學信號調變寬度 (p_opt_interval)</span><span class="control-value" id="val_p_opt_interval">0.15</span></div>
+                        <input type="range" id="p_opt_interval" min="0.05" max="0.25" value="0.15" step="0.01">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>5-4 波導介質光學信號衰減係數 (p_opt_atten)</span><span class="control-value" id="val_p_opt_atten">0.3</span></div>
+                        <input type="range" id="p_opt_atten" min="0.1" max="1.0" value="0.3" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <div class="control-label"><span>5-5 解碼錯誤重傳時序懲罰 (p_retrans_p)</span><span class="control-value" id="val_p_retrans_p">2.0</span></div>
+                        <input type="range" id="p_retrans_p" min="1.0" max="5.0" value="2.0" step="0.1">
+                    </div>
+                </div>
+            </div>
+            <div class="nav-footer">
+                <button class="btn" onclick="nextStep(4)">⬅ 上一頁</button>
+                <button class="btn btn-commit" onclick="commitAndSimulate()">確認設定並進階到運算渲染頁 ⚡</button>
+            </div>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="step-page" id="step-6">
+            <div class="page-header">
+                <div class="page-title">📊 運算渲染中心 (Simulation Kernel)</div>
+                <button class="btn" onclick="nextStep(5)">⬅ 重設參數</button>
+            </div>
+            <div style="flex-grow: 1; margin: 1rem 0;">
+                <div class="dashboard-grid">
+                    <!-- 圖表 1 -->
+                    <div class="chart-box">
+                        <div class="chart-header">
+                            <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">3D 晶片分層溫度演進 (℃)</span>
+                            <div class="layer-toggles" id="layer-toggles-container"></div>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="chartTemp"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 狀態面板 -->
+                    <div class="status-panel">
+                        <div style="font-size: 1.1rem; font-weight: bold; color: #fff;">演算核心運作狀態</div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-muted);">
+                                <span>進度 (Step / 60)</span>
+                                <span id="sim-step-text">0 / 60</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" id="sim-progress"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="metrics-cards">
+                            <div class="metric-card">
+                                <div class="metric-card-title">晶片最高溫度 (Max Temp)</div>
+                                <div class="metric-card-value" id="m-temp">-- ℃</div>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--secondary);">
+                                <div class="metric-card-title">時序傳輸延遲 (Latency)</div>
+                                <div class="metric-card-value" id="m-latency">-- ns</div>
+                            </div>
+                            <div class="metric-card" style="border-color: var(--accent-red);">
+                                <div class="metric-card-title">光訊號誤碼率 (BER)</div>
+                                <div class="metric-card-value" id="m-ber">--</div>
+                            </div>
+                        </div>
+
+                        <button class="btn" style="margin-top: auto; justify-content: center;" onclick="toggleModal(true)">檢視完整高密度日誌</button>
+                    </div>
+
+                    <!-- 圖表 2 -->
+                    <div class="chart-box">
+                        <div class="chart-header">
+                            <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">傳輸延遲與動態流量收斂圖</span>
+                        </div>
+                        <div class="canvas-container">
+                            <canvas id="chartMetrics"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <!-- ================= 📋 階段三：高密度純數據日誌彈出式燈箱 ================= -->
-    <div id="data_log_modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(3,7,18,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; box-sizing: border-box; padding: 40px;">
-        <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; width: 100%; max-width: 1000px; height: 100%; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-            <div style="padding: 20px; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-                <div style="font-weight: bold; color: #38bdf8; font-size: 16px;">📋 全時間步長多物理量耦合高密度科研日誌 (Raw Time-Series Logs)</div>
-                <button class="btn-nav" style="padding: 6px 16px; font-size: 12px;" onclick="toggleDataLogModal()">❌ 關閉數據日誌</button>
+
+    <!-- 數據日誌燈箱 Modal -->
+    <div class="modal-overlay" id="log-modal">
+        <div class="modal-content">
+            <div class="page-header">
+                <div class="page-title">高密度物理模擬日誌 (60 Time Steps Full Data)</div>
+                <button class="btn btn-reset" onclick="toggleModal(false)">關閉 (ESC)</button>
             </div>
-            <div style="flex-grow: 1; overflow-y: auto; padding: 20px;">
-                <table class="data-table" style="margin-top: 0;">
+            <div class="log-table-wrapper">
+                <table>
                     <thead>
                         <tr>
-                            <th>時間步長 (t)</th>
-                            <th>動態資料流量 (%)</th>
-                            <th>最高核心溫度 (°C)</th>
-                            <th>訊號吞吐延遲 (Delay)</th>
-                            <th>預估系統誤碼率 (BER)</th>
+                            <th>Step</th>
+                            <th>Traffic Load</th>
+                            <th>Max Temp (℃)</th>
+                            <th>Avg Latency (ns)</th>
+                            <th>BER (誤碼率)</th>
                         </tr>
                     </thead>
-                    <tbody id="rawLogTableBody">
-                        <tr><td colspan="5" style="color:#64748b; padding:20px;">暫無數據</td></tr>
+                    <tbody id="log-table-body">
+                        <!-- 動態插入 -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-</div> <!-- app-wrapper 結束 -->
+    <script>
+        // 1. 出廠預設值 (DEFAULT_CONFIG)
+        const DEFAULT_CONFIG = {
+            sw_geom: true, p_layers: 6, p_geo_density: 1.2, p_inter_r: 0.25, p_die_thick: 150, p_si_cond: 148,
+            sw_thermal: true, p_cooling_temp: 65, p_valve_k: 1.5, p_tec_eff: 0.08, p_latent_k: 2.2, p_reflux_rate: 1.0,
+            sw_routing: true, p_traffic_th: 5.0, p_tsv_speed: 2.5, p_imp_factor: 0.02, p_queue_size: 64, p_cross_delay: 0.5,
+            sw_power: true, p_power_comp: 0.15, p_backup_time: 5, p_leak_alpha: 0.005, p_load_bal: 1.0, p_vdd_volt: 0.9,
+            sw_optics: true, p_opt_noise: 0.05, p_agent_tol: 0.9, p_opt_interval: 0.15, p_opt_atten: 0.3, p_retrans_p: 2.0
+        };
 
-<script>
-// ============================================================================
-// 🛸 CubeSim Pro Studio JavaScript 核心邏輯引擎
-// ============================================================================
+        // 頁面定義模組範圍
+        const MODULE_PARAMS = {
+            1: ['sw_geom', 'p_layers', 'p_geo_density', 'p_inter_r', 'p_die_thick', 'p_si_cond'],
+            2: ['sw_thermal', 'p_cooling_temp', 'p_valve_k', 'p_tec_eff', 'p_latent_k', 'p_reflux_rate'],
+            3: ['sw_routing', 'p_traffic_th', 'p_tsv_speed', 'p_imp_factor', 'p_queue_size', 'p_cross_delay'],
+            4: ['sw_power', 'p_power_comp', 'p_backup_time', 'p_leak_alpha', 'p_load_bal', 'p_vdd_volt'],
+            5: ['sw_optics', 'p_opt_noise', 'p_agent_tol', 'p_opt_interval', 'p_opt_atten', 'p_retrans_p']
+        };
 
-// 大廠級出廠配置備份庫：完全攤平 21 項機制的 23 個精細變數，支援獨立一鍵重置
-const DEFAULT_CONFIG = {
-    p_layers: 6,         p_geo_density: 1.2,   p_inter_r: 0.25,      p_die_thick: 150,    p_si_cond: 148,
-    p_cooling_temp: 65,  p_valve_k: 1.5,       p_tec_eff: 0.08,      p_latent_k: 2.2,     p_reflux_rate: 1.0,
-    p_traffic_th: 5.0,   p_tsv_speed: 2.5,     p_imp_factor: 0.02,   p_queue_size: 64,    p_cross_delay: 0.5,
-    p_power_comp: 0.15,  p_backup_time: 5,     p_leak_alpha: 0.005,  p_load_bal: 1.0,     p_vdd_volt: 0.9,
-    p_opt_noise: 0.05,   p_agent_tol: 0.9,     p_opt_interval: 0.15, p_opt_atten: 0.3,    p_retrans_p: 2.0
-};
+        // 雙向綁定與即時 UI 數字顯示
+        Object.keys(DEFAULT_CONFIG).forEach(key => {
+            const input = document.getElementById(key);
+            if (input) {
+                input.addEventListener('input', (e) => {
+                    const label = document.getElementById('val_' + key);
+                    if (label) label.textContent = e.target.value;
+                });
+            }
+        });
 
-// 模組一鍵重置之內部變數 ID 映射表
-const MODULE_MAPPING = {
-    geom: ['p_layers', 'p_geo_density', 'p_inter_r', 'p_die_thick', 'p_si_cond'],
-    thermal: ['p_cooling_temp', 'p_valve_k', 'p_tec_eff', 'p_latent_k', 'p_reflux_rate'],
-    routing: ['p_traffic_th', 'p_tsv_speed', 'p_imp_factor', 'p_queue_size', 'p_cross_delay'],
-    power: ['p_power_comp', 'p_backup_time', 'p_leak_alpha', 'p_load_bal', 'p_vdd_volt'],
-    optics: ['p_opt_noise', 'p_agent_tol', 'p_opt_interval', 'p_opt_atten', 'p_retrans_p']
-};
-// 1. 🖼️ 全畫面多步驟換頁導覽系統 (Fullscreen Step Navigation)
-function changeStep(stepNumber) {
-    // 隱藏所有步驟的全畫面面板
-    document.querySelectorAll('.step-panel').forEach(panel => {
-        panel.classList.remove('active');
-    });
-    // 點亮當前指定的步驟全畫面
-    const targetStep = document.getElementById(`step_${stepNumber}`);
-    if (targetStep) {
-        targetStep.classList.add('active');
-    }
-}
+        // 幻燈片全螢幕導覽
+        function nextStep(stepNum) {
+            const container = document.getElementById('slider-container');
+            container.style.transform = `translateX(-${(stepNum - 1) * 100}vw)`;
+        }
 
-// 2. 🎛️ 獨立模組一鍵重置功能 (Independent Module Reset Engine)
-function resetModule(moduleKey) {
-    if (!MODULE_MAPPING[moduleKey]) return;
-    
-    // 根據映射表，只把屬於該模組的滑桿數值倒回出廠預設值，完全不干涉其他頁面的變數
-    MODULE_MAPPING[moduleKey].forEach(paramId => {
-        const defaultVal = DEFAULT_CONFIG[paramId];
-        const inputEl = document.getElementById(paramId);
-        if (inputEl) {
-            inputEl.value = defaultVal;
-            
-            // 同步即時更新網頁畫面上對應的數字小標籤
-            const valLabel = document.getElementById(paramId.replace('p_', 'v_'));
-            if (valLabel) {
-                // 根據數值型態動態決定小數點位數
-                if (Number.isInteger(defaultVal)) {
-                    valLabel.innerText = defaultVal;
-                } else {
-                    // 自動判斷需要幾位小數點
-                    const str = defaultVal.toString();
-                    const decimalPlaces = str.includes('.') ? str.split('.')[1].length : 1;
-                    valLabel.innerText = parseFloat(defaultVal).toFixed(Math.max(1, Math.min(3, decimalPlaces)));
+        // 獨立模組一鍵重置
+        function resetModule(moduleNum) {
+            const keys = MODULE_PARAMS[moduleNum];
+            keys.forEach(key => {
+                const el = document.getElementById(key);
+                if (el) {
+                    if (el.type === 'checkbox') {
+                        el.checked = DEFAULT_CONFIG[key];
+                    } else {
+                        el.value = DEFAULT_CONFIG[key];
+                        const label = document.getElementById('val_' + key);
+                        if (label) label.textContent = DEFAULT_CONFIG[key];
+                    }
                 }
-            }
-        }
-    });
-}
-
-// 3. 🖼️ 執行階段返回控制
-function backToConfigStage() {
-    if (simulationTimer) clearInterval(simulationTimer);
-    changeStep(5); // 一鍵返回最後一個配置步驟頁面
-}
-
-function toggleDataLogModal() {
-    const modal = document.getElementById('data_log_modal');
-    modal.style.display = (modal.style.display === 'none' || modal.style.display === '') ? 'flex' : 'none';
-}
-
-// 全局圖表與計時器狀態指針
-let simulationTimer = null;
-let thermalChartInstance = null;
-let latencyChartInstance = null;
-let hiddenLayersMap = {}; // 記憶使用者在圖表上勾選/隱藏的特定樓層線條狀態
-// 4. 🛸 步進式多物理量動態模擬核心啟動器 (Commit & Run Engine)
-function commitAndRunSimulation() {
-    // ⚡ 第一步：切換全畫面，將滑桿配置面版全面隱藏，點亮第 6 頁的運算渲染面板
-    changeStep(6);
-
-    // ⚡ 第二步：初始化運算狀態列、進度條與卡片數值
-    const runStatusText = document.getElementById('runStatusText');
-    const progressBar = document.getElementById('progressBar');
-    runStatusText.innerText = '模擬狀態：偏微分多物理量動態解析中 (0%)...';
-    progressBar.style.width = '0%';
-
-    // ⚡ 第三步：精確讀取前端完全配置完畢的 5 大模組功能開關
-    const sw_geom = document.getElementById('sw_geom').checked;
-    const sw_thermal = document.getElementById('sw_thermal').checked;
-    const sw_routing = document.getElementById('sw_routing').checked;
-    const sw_power = document.getElementById('sw_power').checked;
-    const sw_optics = document.getElementById('sw_optics').checked;
-
-    // ⚡ 第四步：精確讀取完全解耦開展後的 23 個精細變數 (大廠科研級灣數)
-    const L = parseInt(document.getElementById('p_layers').value);
-    const density = parseFloat(document.getElementById('p_geo_density').value);
-    const inter_r = parseFloat(document.getElementById('p_inter_r').value);
-    const die_thick = parseFloat(document.getElementById('p_die_thick').value);
-    const si_cond = parseFloat(document.getElementById('p_si_cond').value);
-
-    const cool_T = parseFloat(document.getElementById('p_cooling_temp').value);
-    const valve = parseFloat(document.getElementById('p_valve_k').value);
-    const tec_eff = parseFloat(document.getElementById('p_tec_eff').value);
-    const latent_k = parseFloat(document.getElementById('p_latent_k').value);
-    const reflux_rate = parseFloat(document.getElementById('p_reflux_rate').value);
-
-    const t_th = parseFloat(document.getElementById('p_traffic_th').value);
-    const tsv = parseFloat(document.getElementById('p_tsv_speed').value);
-    const imp_f = parseFloat(document.getElementById('p_imp_factor').value);
-    const queue_size = parseFloat(document.getElementById('p_queue_size').value);
-    const cross_delay = parseFloat(document.getElementById('p_cross_delay').value);
-
-    const p_comp = parseFloat(document.getElementById('p_power_comp').value);
-    const backup_time = parseFloat(document.getElementById('p_backup_time').value);
-    const leak_alpha = parseFloat(document.getElementById('p_leak_alpha').value);
-    const load_bal = parseFloat(document.getElementById('p_load_bal').value);
-    const vdd_volt = parseFloat(document.getElementById('p_vdd_volt').value);
-
-    const opt_n = parseFloat(document.getElementById('p_opt_noise').value);
-    const agent_tol = parseFloat(document.getElementById('p_agent_tol').value);
-    const opt_interval = parseFloat(document.getElementById('p_opt_interval').value);
-    const opt_atten = parseFloat(document.getElementById('p_opt_atten').value);
-    const retrans_p = parseFloat(document.getElementById('p_retrans_p').value);
-
-    // 清空燈箱內部的純數據高密度日誌表格
-    document.getElementById('rawLogTableBody').innerHTML = '';
-
-    const time_steps = 60;
-    let current_step = 1;
-    
-    // 初始化熱物理二維狀態陣列 (時間 x 層數)，第 0 步預設室溫 25°C
-    let temp_history = [new Array(L).fill(25.0)];
-    let max_temp_per_step = [25.0];
-    let latency_history = [0.0];
-    let traffic_history = [50.0];
-    let ber_history = [0.0001];
-    let total_throughput = 0;
-    // ⚡ 第五步：步進式定時演算法循環 (40ms 高速步進，實現「正在運行」之不凍結動態設計)
-    simulationTimer = setInterval(function() {
-        if (current_step >= time_steps) {
-            clearInterval(simulationTimer);
-            finalizeSimulation(L, max_temp_per_step, latency_history, traffic_history, ber_history, temp_history, total_throughput);
-            return;
-        }
-
-        // 模擬動態工作負載波形 (50% ~ 80%)
-        let current_load = 0.5 + 0.3 * Math.sin(current_step / 5.0);
-        traffic_history.push(current_load * 100.0);
-        total_throughput += current_load * 100.0;
-
-        // 🌐 模組一：幾何縮放與功耗密度積壓 (加入 VDD 電壓與線路厚度修正因數)
-        let geo_modifier = (sw_geom && L > 4) ? density : 1.0;
-        let thickness_factor = 150 / die_thick; 
-        let heat_in = current_load * 28.0 * geo_modifier * thickness_factor * (vdd_volt / 0.9);
-
-        // ⚡ 模組四：放電供電補償與漏電流溫度熱耦合正回饋
-        if (sw_power) {
-            heat_in *= (1.0 - p_comp);
-            // 漏電耦合物理公式：溫度越高，漏電流越大，發熱增量速率隨之疊加
-            let prev_max_t = max_temp_per_step[current_step - 1];
-            if (prev_max_t > 70.0) {
-                heat_in += (prev_max_t - 70.0) * leak_alpha * 20.0 * load_bal;
-            }
-        }
-
-        let step_max_temp = 25.0;
-        let next_step_temperatures = new Array(L).fill(25.0);
-
-        // 針對 3D 方塊的每一層進行物理迭代運算
-        for (let l = 0; l < L; l++) {
-            let prev_T = temp_history[current_step - 1][l];
-
-            // 3D 內部層間熱傳導：結合介面熱阻（inter_r）與矽材料本體導熱率（si_cond）
-            let effective_k = inter_r * (si_cond / 148.0);
-            let heat_exchange = 0.0;
-            if (l > 0) heat_exchange += effective_k * (temp_history[current_step - 1][l - 1] - prev_T);
-            if (l < L - 1) heat_exchange += effective_k * (temp_history[current_step - 1][l + 1] - prev_T);
-
-            // 🌬️ 模組二：相變液冷與電子回收散熱 (加入潛熱係數與冷凝回流速率對流體流量的制約公式)
-            let cooling_out = 0.0;
-            if (sw_thermal && prev_T > cool_T) {
-                let base_cooling = (prev_T - cool_T) * 0.4 * valve * latent_k * reflux_rate;
-                let tec_bonus = sw_power ? (prev_T - cool_T) * tec_eff * 0.5 : 0.0;
-                cooling_out = base_cooling + tec_bonus;
-            }
-
-            let boundary_cooling = (l === 0 || l === L - 1) ? 1.5 : 0.0;
-            let next_T = prev_T + heat_in + heat_exchange - cooling_out - boundary_cooling;
-            if (next_T < 25.0) next_T = 25.0;
-            
-            next_step_temperatures[l] = next_T;
-            if (next_T > step_max_temp) {
-                step_max_temp = next_T;
-            }
-        }
-        temp_history.push(next_step_temperatures);
-        max_temp_per_step.push(step_max_temp);
-
-        // 🚦 模組三：時序紅綠燈與佇列排隊、交織點內部固定時延計算
-        let base_latency = current_load * 7.0 + cross_delay;
-        if (step_max_temp > 75.0) {
-            base_latency *= (1.0 + (step_max_temp - 75.0) * imp_f);
-        }
-        // 緩衝佇列溢出懲罰公式
-        if (current_load * 100 > queue_size) {
-            base_latency *= (1.0 + (current_load * 100 - queue_size) * 0.01);
-        }
-        if (sw_routing && base_latency > t_th) {
-            base_latency /= tsv;
-        }
-
-        // 🚀 模組五：光學傳輸（加入信號衰減 dB、信號寬度與解碼重傳懲罰）
-        let current_ber = 0.0001;
-        if (sw_optics) {
-            current_ber = (opt_n * 0.05 * opt_atten) * (1.0 - (agent_tol - 0.5)) / (opt_interval / 0.15);
-            base_latency += (current_ber * 150.0 * retrans_p); // 融入重傳懲罰因數
-        } else {
-            current_ber = 0.001 * (L * 0.5) * geo_modifier * (1.0 + backup_time * 0.02);
-        }
-        
-        latency_history.push(base_latency);
-        ber_history.push(current_ber);
-
-        // 📋 實作動態運行設計：即時將計算完的當步數據寫入「高密度數據日誌彈出燈箱表格」
-        const tableBody = document.getElementById('rawLogTableBody');
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><strong>${current_step}</strong></td>
-            <td style="color:#10b981; font-weight:bold;">${(current_load * 100).toFixed(1)} %</td>
-            <td style="color:#f43f5e; font-weight:bold;">${step_max_temp.toFixed(2)} °C</td>
-            <td style="color:#38bdf8; font-weight:bold;">${base_latency.toFixed(2)}</td>
-            <td style="color:#a855f7; font-family:monospace;">${current_ber.toExponential(3)}</td>
-        `;
-        tableBody.appendChild(row);
-
-        // ⏳ 驅動進度條與動畫文字
-        const progressPercent = (current_step / (time_steps - 1)) * 100;
-        document.getElementById('progressBar').style.width = `${progressPercent}%`;
-        document.getElementById('runStatusText').innerText = `模擬狀態：多物理量動態解析中 (${Math.round(progressPercent)}%)...`;
-
-        // 即時刷新圖表曲線（長出波形效果）
-        updateIncrementalCharts(current_step, L, temp_history, latency_history, traffic_history);
-
-        current_step++;
-    }, 40);
-}
-// 5. 📈 增量圖表即時刷新函式 (實現資料動態長出來的視覺設計)
-function updateIncrementalCharts(step, L, temp_history, latency_history, traffic_history) {
-    const labels = Array.from({length: step + 1}, (_, i) => i);
-    const ctx1 = document.getElementById('thermalChart').getContext('2d');
-
-    // 首次運行或圖表不存在時，初始化熱傳導圖表
-    if (!thermalChartInstance) {
-        let tempDatasets = [];
-        for (let l = 0; l < L; l++) {
-            const hue = (l * (360 / L)) % 360;
-            tempDatasets.push({
-                label: `Layer ${l + 1}`,
-                data: [25.0],
-                borderColor: `hsl(${hue}, 75%, 60%)`,
-                backgroundColor: `hsl(${hue}, 75%, 60%, 0.05)`,
-                borderWidth: 2,
-                pointRadius: 0,
-                fill: false,
-                hidden: hiddenLayersMap[`layer_${l}`] || false // 保持使用者的隱藏狀態
             });
         }
-        thermalChartInstance = new Chart(ctx1, {
-            type: 'line',
-            data: { labels: labels, datasets: tempDatasets },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false, // 關閉動畫以保證高頻步進時的效能流暢
-                plugins: { title: { display: true, text: '3D Cube Chip Multi-Layer Thermal Evolution (熱傳導)', color: '#94a3b8', font: { size: 13, weight: 'bold' } } },
-                scales: {
-                    x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, min: 20 }
-                }
-            }
-        });
-        
-        // 💡 建立圖表線條動態勾選調度面板
-        generateLegendToggles(L);
-    } else {
-        // 後續步長：更新 X 軸標籤與各樓層熱流數據
-        thermalChartInstance.data.labels = labels;
-        for (let l = 0; l < L; l++) {
-            thermalChartInstance.data.datasets[l].data = temp_history.map(s => s[l]);
+
+        // 圖表物件實體
+        let chartTempInstance = null;
+        let chartMetricsInstance = null;
+        let simInterval = null;
+        let layerVisibility = []; // 記憶勾選狀態
+
+        // 多色彩虹產生器 (提供圖表層數線條)
+        function getLayerColor(index, total) {
+            const hue = (index * (360 / Math.max(total, 1))) % 360;
+            return `hsl(${hue}, 80%, 60%)`;
         }
-        thermalChartInstance.update();
-    }
 
-    // 同步刷新雙 Y 軸時序與流量圖表
-    updateLatencyChart(step, labels, latency_history, traffic_history);
-}
+        // STEP 6: 觸發Commit與動態演算渲染
+        function commitAndSimulate() {
+            nextStep(6);
 
-// 6. 🎛️ 生成自定義物理曲線動態調度面板 (一頁只顯示對應層數的按鈕)
-function generateLegendToggles(L) {
-    const container = document.getElementById('legendContainer');
-    container.innerHTML = ''; // 清空舊按鈕
-    
-    for (let l = 0; l < L; l++) {
-        const btn = document.createElement('button');
-        btn.className = 'toggle-btn';
-        if (hiddenLayersMap[`layer_${l}`]) btn.className += ' inactive';
-        btn.innerText = `L ${l + 1}`;
-        btn.onclick = function() {
-            const isHidden = !thermalChartInstance.data.datasets[l].hidden;
-            thermalChartInstance.data.datasets[l].hidden = isHidden;
-            hiddenLayersMap[`layer_${l}`] = isHidden; // 記錄狀態
-            this.classList.toggle('inactive', isHidden);
-            thermalChartInstance.update();
-        };
-        container.appendChild(btn);
-    }
-}
-// 7. 📊 雙 Y 軸時序與流量圖表動態增量刷新 (修正語法錯誤版本)
-function updateLatencyChart(step, labels, latency_history, traffic_history) {
-    const ctx2 = document.getElementById('latencyChart').getContext('2d');
-    
-    if (!latencyChartInstance) {
-        latencyChartInstance = new Chart(ctx2, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Signal Latency', data: latency_history, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderWidth: 2.5, pointRadius: 0, yAxisID: 'y' },
-                    { label: 'Traffic Load (%)', data: traffic_history, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.02)', borderWidth: 1.5, borderDash:, pointRadius: 0, yAxisID: 'y1' }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: { title: { display: true, text: 'Signaling Delay vs Dynamic Traffic Wave (時序與流量交叉驗證)', color: '#94a3b8', font: { size: 13, weight: 'bold' } } },
-                scales: {
-                    x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                    y: { type: 'linear', display: true, position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#38bdf8' }, min: 0 },
-                    y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#10b981' }, min: 0, max: 100, grid: { drawOnChartArea: false } }
-                }
+            // 讀取全域設定變數 (讀取DOM快照，徹底解耦)
+            const cfg = {};
+            Object.keys(DEFAULT_CONFIG).forEach(key => {
+                const el = document.getElementById(key);
+                cfg[key] = el.type === 'checkbox' ? el.checked : parseFloat(el.value);
+            });
+
+            // 重設與清理圖表、日誌面板
+            if (simInterval) clearInterval(simInterval);
+            document.getElementById('log-table-body').innerHTML = '';
+            document.getElementById('sim-progress').style.width = '0%';
+            document.getElementById('sim-step-text').textContent = '0 / 60';
+
+            const layers = cfg.p_layers;
+            
+            // 初始化或更新層數勾選按鈕列
+            const togglesContainer = document.getElementById('layer-toggles-container');
+            togglesContainer.innerHTML = '';
+            if (layerVisibility.length !== layers) {
+                layerVisibility = new Array(layers).fill(true);
             }
+
+            for (let i = 0; i < layers; i++) {
+                const btn = document.createElement('button');
+                btn.className = `layer-btn ${layerVisibility[i] ? 'active' : ''}`;
+                btn.textContent = `L ${i + 1}`;
+                btn.onclick = () => {
+                    layerVisibility[i] = !layerVisibility[i];
+                    btn.classList.toggle('active', layerVisibility[i]);
+                    if (chartTempInstance) {
+                        chartTempInstance.data.datasets[i].hidden = !layerVisibility[i];
+                        chartTempInstance.update();
+                    }
+                };
+                togglesContainer.appendChild(btn);
+            }
+
+            // 初始化 Chart.js - 圖表一：溫度演進
+            const ctxTemp = document.getElementById('chartTemp').getContext('2d');
+            if (chartTempInstance) chartTempInstance.destroy();
+
+            const tempDatasets = [];
+            for (let i = 0; i < layers; i++) {
+                const color = getLayerColor(i, layers);
+                tempDatasets.push({
+                    label: `L${i + 1}`,
+                    data: [],
+                    borderColor: color,
+                    backgroundColor: color,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    hidden: !layerVisibility[i]
+                });
+            }
+
+            chartTempInstance = new Chart(ctxTemp, {
+                type: 'line',
+                data: { labels: [], datasets: tempDatasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: { display: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { display: true, title: { display: true, text: '℃', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 初始化 Chart.js - 圖表二：雙 Y 軸 (延遲 & 流量)
+            const ctxMetrics = document.getElementById('chartMetrics').getContext('2d');
+            if (chartMetricsInstance) chartMetricsInstance.destroy();
+
+            chartMetricsInstance = new Chart(ctxMetrics, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Latency (ns)', data: [], borderColor: '#7000ff', yAxisID: 'y1', borderWidth: 2, pointRadius: 0 },
+                        { label: 'Traffic Load', data: [], borderColor: '#00f0ff', yAxisID: 'y2', borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    scales: {
+                        x: { display: true, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y1: { type: 'linear', position: 'left', title: { display: true, text: 'ns', color: '#7000ff' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y2: { type: 'linear', position: 'right', title: { display: true, text: 'Load', color: '#00f0ff' }, grid: { drawOnChartArea: false } }
+                    },
+                    plugins: { legend: { labels: { color: '#e2e8f0' } } }
+                }
+            });
+
+            // 物理演算狀態矩陣初始化
+            let step = 0;
+            const totalSteps = 60;
+            let currentTemps = new Array(layers).fill(30.0); // 初始室溫 30°C
+
+            // 開始 40ms 增量計時器
+            simInterval = setInterval(() => {
+                step++;
+                const t = step;
+
+                // 1. 動態工作負載 (Traffic Load) 衝擊波
+                const trafficLoad = 0.5 + 0.3 * Math.sin(t / 5.0);
+
+                // 2. 幾何 / 供電發熱量
+                const geoModifier = cfg.sw_geom ? (1.0 + (layers / 24.0) * cfg.p_geo_density) : 1.0;
+                const dieThickFactor = cfg.sw_geom ? (cfg.p_die_thick / 150.0) : 1.0;
+                const vddFactor = cfg.sw_power ? (cfg.p_vdd_volt / 0.9) : 1.0;
+                
+                let heatIn = trafficLoad * 28.0 * geoModifier * dieThickFactor * vddFactor;
+
+                // 3. 逐層熱擴散與耦合計算
+                const nextTemps = [...currentTemps];
+                const keff = cfg.sw_geom ? (cfg.p_inter_r * (cfg.p_si_cond / 148.0)) : 0.25;
+
+                for (let l = 0; l < layers; l++) {
+                    let lHeat = heatIn * (1.0 + l * 0.08); // 底部向上功耗遞增
+
+                    // 漏電熱耦合正回饋
+                    if (cfg.sw_power && currentTemps[l] > 70.0) {
+                        lHeat += (currentTemps[l] - 70.0) * cfg.p_leak_alpha * 20.0 * cfg.p_load_bal;
+                    }
+
+                    // 傅立葉層間導熱 (相鄰層溫差傳導)
+                    let conduct = 0;
+                    if (l > 0) conduct += (currentTemps[l - 1] - currentTemps[l]) * keff;
+                    if (l < layers - 1) conduct += (currentTemps[l + 1] - currentTemps[l]) * keff;
+
+                    // 相變潛熱散熱
+                    let coolingOut = 0;
+                    if (cfg.sw_thermal && currentTemps[l] > cfg.p_cooling_temp) {
+                        coolingOut = (currentTemps[l] - cfg.p_cooling_temp) * 0.4 * cfg.p_valve_k * cfg.p_latent_k * cfg.p_reflux_rate;
+                        // 熱電回收微幅效益
+                        coolingOut *= (1.0 + cfg.p_tec_eff);
+                    }
+
+                    nextTemps[l] = Math.max(25.0, currentTemps[l] + (lHeat + conduct - coolingOut) * 0.1);
+                }
+                currentTemps = nextTemps;
+
+                // 4. 時序延遲與分流避堵計算
+                const maxTemp = Math.max(...currentTemps);
+                let baseLatency = 2.0 + trafficLoad * 5.0 + (maxTemp * cfg.p_imp_factor);
+
+                if (cfg.sw_routing) {
+                    if (trafficLoad * 10.0 > cfg.p_queue_size / 8.0) {
+                        baseLatency += cfg.p_cross_delay * 2.0; // 佇列溢出懲罰
+                    }
+                    if (baseLatency > cfg.p_traffic_th) {
+                        baseLatency /= cfg.p_tsv_speed; // TSV 立體電梯降速分流
+                    }
+                }
+
+                // 5. 光學誤碼率 (BER) 演算
+                let ber = 0;
+                if (cfg.sw_optics) {
+                    const noise = cfg.p_opt_noise * (1.0 / cfg.p_agent_tol);
+                    const atten = cfg.p_opt_atten / cfg.p_opt_interval;
+                    ber = Math.min(0.1, (noise * 0.01 + atten * 0.005) * trafficLoad);
+                    baseLatency += (ber * 100.0) * cfg.p_retrans_p; // 重傳懲罰加諸於延遲
+                } else {
+                    // 傳統銅線衰減
+                    ber = 0.001 * (layers / 6.0) * trafficLoad;
+                }
+
+                // --- 增量圖表繪製 (Incremental Update) ---
+                chartTempInstance.data.labels.push(step);
+                for (let l = 0; l < layers; l++) {
+                    chartTempInstance.data.datasets[l].data.push(currentTemps[l]);
+                }
+                chartTempInstance.update();
+
+                chartMetricsInstance.data.labels.push(step);
+                chartMetricsInstance.data.datasets[0].data.push(baseLatency);
+                chartMetricsInstance.data.datasets[1].data.push(trafficLoad);
+                chartMetricsInstance.update();
+
+                // 更新即時數據卡片
+                document.getElementById('m-temp').textContent = `${maxTemp.toFixed(1)} ℃`;
+                document.getElementById('m-latency').textContent = `${baseLatency.toFixed(2)} ns`;
+                document.getElementById('m-ber').textContent = ber.toExponential(2);
+
+                // 更新進度條
+                document.getElementById('sim-progress').style.width = `${(step / totalSteps) * 100}%`;
+                document.getElementById('sim-step-text').textContent = `${step} / ${totalSteps}`;
+
+                // 動態插入高密度日誌表格
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${step}</td>
+                    <td>${trafficLoad.toFixed(3)}</td>
+                    <td>${maxTemp.toFixed(2)}</td>
+                    <td>${baseLatency.toFixed(3)}</td>
+                    <td>${ber.toExponential(4)}</td>
+                `;
+                document.getElementById('log-table-body').appendChild(tr);
+
+                // 結束判定
+                if (step >= totalSteps) {
+                    clearInterval(simInterval);
+                }
+            }, 40);
+        }
+
+        // 燈箱切換控制
+        function toggleModal(show) {
+            const modal = document.getElementById('log-modal');
+            if (show) modal.classList.add('active');
+            else modal.classList.remove('active');
+        }
+
+        // ESC 鍵關閉燈箱
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') toggleModal(false);
         });
-    } else {
-        latencyChartInstance.data.labels = labels;
-        latencyChartInstance.data.datasets[0].data = latency_history;
-        latencyChartInstance.data.datasets[1].data = traffic_history;
-        latencyChartInstance.update();
-    }
-}
-
-// 8. 🏆 步進式運算結束後的數據結案與狀態回歸
-function finalizeSimulation(L, max_temp_per_step, latency_history, traffic_history, ber_history, temp_history, total_throughput) {
-    const final_max_t = Math.max(...max_temp_per_step);
-    const final_avg_l = latency_history.reduce((a, b) => a + b, 0) / latency_history.length;
-    const final_avg_thr = total_throughput / (traffic_history.length - 1);
-    const final_ber = ber_history[ber_history.length - 1];
-
-    // ⚡ 變更渲染狀態文字
-    const runStatusText = document.getElementById('runStatusText');
-    runStatusText.innerText = '模擬狀態：數據分析已全數收斂完成 (100%)！';
-
-    // 🎛️ 結案渲染更新四大高精度數據卡片
-    document.getElementById('d_max_temp').innerText = `${final_max_t.toFixed(2)} °C`;
-    document.getElementById('d_avg_lat').innerText = `${final_avg_l.toFixed(2)}`;
-    document.getElementById('d_avg_thr').innerText = `${final_avg_thr.toFixed(1)} %`;
-    document.getElementById('d_ber_val').innerText = final_ber.toExponential(3);
-
-    // 📝 更新文字系統摘要描述
-    const summaryBox = document.getElementById('summaryBox');
-    summaryBox.innerHTML = `
-        <strong>📊 系統級行為模擬報告 (CubeSim Pro Studio)</strong><br>
-        • 🧬 測試架構: <strong>${L} 層</strong> 3D 立體方塊非均質晶片堆疊<br>
-        • 🔥 峰值核心溫度: <span style="color:#f43f5e; font-weight:bold;">${final_max_t.toFixed(2)} °C</span><br>
-        • ⚡ 訊號吞吐延遲: <span style="color:#38bdf8; font-weight:bold;">${final_avg_l.toFixed(2)} 單位</span><br>
-        • 📈 數據狀態: 全時間步長多物理量偏微分矩陣收斂。
-    `;
-}
-</script>
+    </script>
 </body>
 </html>
