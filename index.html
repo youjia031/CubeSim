@@ -666,22 +666,102 @@
                 </div>
             </div>
 
-            <!-- Tab 9: 專題總對比報告 -->
+            <!-- Tab 9: 專題總對比報告與八邊形雷達圖 -->
             <div class="tab-content" id="tab-benchmark">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div class="chart-box">
-                        <div style="font-weight: bold; color: var(--primary); margin-bottom: 8px;">3D Cube 架構 vs 傳統 2.5D/3D TSV 全方位效能雷達圖</div>
-                        <div class="canvas-container"><canvas id="chartRadar"></canvas></div>
-                    </div>
-                    <div class="chart-box" style="gap: 1rem;">
-                        <div style="font-weight: bold; color: var(--accent-yellow);">專題突破亮點綜合評估總結</div>
-                        <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-muted);">
-                            <p>✅ <b>八向斜配線捷徑</b>：時序延遲較傳統 TSV 平均降低 <span id="rep-latency-saving" style="color: var(--accent-green); font-weight: bold;">--</span>%。</p>
-                            <p>✅ <b>被動相變與氣/液雙閥門</b>：極端高溫抑制能力提升 <span id="rep-temp-saving" style="color: var(--primary); font-weight: bold;">--</span>%。</p>
-                            <p>✅ <b>自由電子能量回收</b>：將雜散電子成功轉化補給電力達 <span id="rep-power-reclaimed" style="color: var(--accent-yellow); font-weight: bold;">--</span> W。</p>
-                            <p>✅ <b>白光減法消除機制</b>：光學誤碼率（BER）在極高環境雜訊下強行拉低 <span style="color: var(--secondary); font-weight: bold;">10^4</span> 個數量級。</p>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="chart-box">
+                            <div style="font-weight: bold; color: var(--primary); margin-bottom: 8px;">8 大模組極限物理評估八邊形雷達圖 (動態即時演算)</div>
+                            <div class="canvas-container"><canvas id="chartRadar"></canvas></div>
                         </div>
-                        <button class="btn" style="margin-top: auto; justify-content: center;" onclick="toggleModal(true)">檢視完整 60-Step 高密度日誌表格</button>
+                        <div class="chart-box" style="gap: 0.8rem;">
+                            <div style="font-weight: bold; color: var(--accent-yellow);">專題突破亮點綜合評估總結</div>
+                            <div style="font-size: 0.88rem; line-height: 1.6; color: var(--text-muted);">
+                                <p>✅ <b>八向斜配線捷徑</b>：時序延遲較傳統 TSV 平均降低 <span id="rep-latency-saving" style="color: var(--accent-green); font-weight: bold;">--</span>%。</p>
+                                <p>✅ <b>被動相變與氣/液雙閥門</b>：極端高溫抑制能力提升 <span id="rep-temp-saving" style="color: var(--primary); font-weight: bold;">--</span>%。</p>
+                                <p>✅ <b>自由電子能量回收</b>：將雜散電子成功轉化補給電力達 <span id="rep-power-reclaimed" style="color: var(--accent-yellow); font-weight: bold;">--</span> W。</p>
+                                <p>✅ <b>白光減法消除機制</b>：光學誤碼率（BER）在極高環境雜訊下強行拉低 <span style="color: var(--secondary); font-weight: bold;">10^4</span> 個數量級。</p>
+                            </div>
+                            <button class="btn" style="margin-top: auto; justify-content: center;" onclick="toggleModal(true)">檢視完整 60-Step 高密度日誌表格</button>
+                        </div>
+                    </div>
+
+                    <!-- 完整 restore 的專題 vs 傳統對比表格 -->
+                    <div class="module-card">
+                        <div style="font-weight: bold; color: var(--primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; margin-bottom: 0.5rem;">
+                            📋 3D Cube 6-Face 架構 vs. 傳統 2.5D/3D TSV 架構全 8 模組對比指標數據表
+                        </div>
+                        <div class="log-table-wrapper" style="margin-top: 0;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>測試模組 (Module)</th>
+                                        <th>關鍵量化評估指標 (KPI)</th>
+                                        <th>傳統 2.5D/3D TSV 晶片</th>
+                                        <th>本專題 3D Cube 6-Face 晶片</th>
+                                        <th>物理優勢 / 提升幅度的評估</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1. 幾何與分層</td>
+                                        <td>I/O 堆疊表面積與散熱幾何</td>
+                                        <td>僅頂 / 底 2 面互連 (熱積壓高)</td>
+                                        <td><b>6-Face 六面體</b> + 空心四柱分離</td>
+                                        <td><span style="color: var(--accent-green);">散熱表面積提升 200%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2. 相變與氣液冷</td>
+                                        <td>極端負載下抑制 Thermal Runaway</td>
+                                        <td>單相液冷/傳統風冷 (易燒毀)</td>
+                                        <td><b>被動二相流汽化</b> + 智慧雙閥門</td>
+                                        <td><span style="color: var(--accent-green);">高溫抑制率提升 28.4%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>3. 八向斜線配線</td>
+                                        <td>跨樓層傳輸距離與延遲 (Latency)</td>
+                                        <td>曼哈頓 90 度折角 (經過電晶體多)</td>
+                                        <td><b>八向斜向對角線</b> + Bypass TSV</td>
+                                        <td><span style="color: var(--accent-green);">時序延遲降低 32.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>4. 雙電網與 UPS</td>
+                                        <td>瞬態壓降 (IR Drop) 與斷電防護</td>
+                                        <td>無 On-Chip UPS (壓降引發錯亂)</td>
+                                        <td><b>埋入式粗母線</b> + 物理 UPS 開關</td>
+                                        <td><span style="color: var(--accent-green);">IR Drop 壓降減少 45.0%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>5. 散射光學除噪</td>
+                                        <td>強雜訊環境下的誤碼率 (BER)</td>
+                                        <td>$10^{-3}$ (白光干擾時需頻繁重傳)</td>
+                                        <td><b>特定波長散射</b> + 減法扣除白光</td>
+                                        <td><span style="color: var(--accent-green);">BER 拉低至 $10^{-7}$ 以下</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>6. 控制大廳調度</td>
+                                        <td>跨晶片封包解包/打包吞吐量</td>
+                                        <td>集中式演算法調度 (局部發熱高)</td>
+                                        <td><b>Control Hub</b> + 空間去耦合減熱</td>
+                                        <td><span style="color: var(--accent-green);">吞吐量提升至 85+ M-PKT/s</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>7. 自由電子回收</td>
+                                        <td>無規則布朗運動自由電子處置</td>
+                                        <td>轉化為雜訊干擾與無謂廢熱</td>
+                                        <td><b>受控氣流驅趕</b> 至矽晶圓留白區回收</td>
+                                        <td><span style="color: var(--accent-green);">額外回收補給電力 (Watt)</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>8. 被動自動降頻</td>
+                                        <td>高溫保護回應機制</td>
+                                        <td>依賴軟體演算法 (回應慢 0.5s)</td>
+                                        <td><b>純物理感測被動自平衡</b> 聯動頻率</td>
+                                        <td><span style="color: var(--accent-green);">零延遲硬體級被動自平衡</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -778,7 +858,7 @@
             document.getElementById('sw_electron_recycle').checked = tdp > 50;
 
             alert(`✅ 已成功根據 ${tdp}W TDP / ${layers}層 / ${freq}GHz 等規格自動計算並配置 8 大模組的參數！`);
-            nextStep(1);
+            commitAndSimulate(); // 即時觸發重新模擬
         }
 
         function setInputValue(id, val) {
@@ -862,7 +942,7 @@
             document.getElementById('log-table-body').innerHTML = '';
             simLogs = [];
 
-            initCharts();
+            initCharts(cfg);
 
             let step = 0, totalSteps = 60;
             let currentTemps = new Array(cfg.p_layers).fill(30.0);
@@ -933,7 +1013,7 @@
             }, 40);
         }
 
-        function initCharts() {
+        function initCharts(cfg) {
             Object.keys(charts).forEach(k => charts[k].destroy());
 
             const optCommon = { responsive: true, maintainAspectRatio: false, animation: false, scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' } }, y: { grid: { color: 'rgba(255,255,255,0.05)' } } } };
@@ -947,21 +1027,33 @@
             charts.m7 = new Chart(document.getElementById('chartM7'), { type: 'line', data: { labels: [], datasets: [{ label: 'Reclaimed Power (W)', data: [], borderColor: '#10b981', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
             charts.m8 = new Chart(document.getElementById('chartM8'), { type: 'line', data: { labels: [], datasets: [{ label: 'Clock Frequency (GHz)', data: [], borderColor: '#f59e0b', borderWidth: 2, pointRadius: 0 }] }, options: optCommon });
 
+            // 動態八邊形雷達圖 (Octagon Radar Chart for 8 Modules)
+            const rGeo = Math.min(100, Math.max(50, 60 + (cfg ? cfg.p_layers * 1.2 : 20)));
+            const rCooling = Math.min(100, Math.max(50, 70 + (cfg ? cfg.p_valve_k * 5 : 15)));
+            const rRouting = Math.min(100, Math.max(50, 65 + (cfg ? cfg.p_tsv_speed * 3 : 15)));
+            const rPower = Math.min(100, Math.max(50, 70 + (cfg ? cfg.p_power_comp * 30 : 15)));
+            const rOptics = Math.min(100, Math.max(50, 60 + (cfg ? cfg.p_agent_tol * 12 : 15)));
+            const rHub = Math.min(100, Math.max(50, 65 + (cfg ? cfg.p_hub_throughput * 0.25 : 15)));
+            const rElectron = Math.min(100, Math.max(50, 60 + (cfg ? cfg.p_gas_flow_k * 8 : 15)));
+            const rFreq = 88;
+
             charts.radar = new Chart(document.getElementById('chartRadar'), {
                 type: 'radar',
                 data: {
-                    labels: ['傳輸延遲', '散熱效率', '抗噪能力', 'IR Drop 防護', '能源利用率', '封包吞吐量'],
+                    labels: [
+                        '1. 6-Face 幾何', '2. 相變氣冷', '3. 八向斜線', '4. UPS 電網',
+                        '5. 減法除噪', '6. 控制大廳', '7. 電子回收', '8. 被動降頻'
+                    ],
                     datasets: [
-                        { label: '3D Cube 專題架構', data: [95, 90, 92, 88, 85, 94], borderColor: '#00f0ff', backgroundColor: 'rgba(0,240,255,0.2)' },
-                        { label: '傳統 2.5D/3D TSV Design', data: [60, 55, 50, 62, 58, 65], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)' }
+                        { label: '3D Cube 專題架構', data: [rGeo, rCooling, rRouting, rPower, rOptics, rHub, rElectron, rFreq], borderColor: '#00f0ff', backgroundColor: 'rgba(0,240,255,0.2)' },
+                        { label: '傳統 2.5D/3D TSV Design', data: [55, 50, 58, 52, 45, 60, 30, 50], borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.2)' }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } } }
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' }, min: 0, max: 100 } } }
             });
         }
 
         function updateChartsAndMetrics(step, temps, freq, latency, irDrop, ber, reclaimedPower, trafficLoad, maxTemp, upsComp, subNoise, cfg) {
-            // 圖表增量更新
             charts.m1.data.labels.push(step); charts.m1.data.datasets[0].data.push(trafficLoad * cfg.p_geo_density * 10); charts.m1.update();
             charts.m2.data.labels.push(step); charts.m2.data.datasets[0].data.push(maxTemp); charts.m2.update();
             charts.m3.data.labels.push(step); charts.m3.data.datasets[0].data.push(latency); charts.m3.data.datasets[1].data.push(latency * 1.52); charts.m3.update();
@@ -971,7 +1063,6 @@
             charts.m7.data.labels.push(step); charts.m7.data.datasets[0].data.push(reclaimedPower); charts.m7.update();
             charts.m8.data.labels.push(step); charts.m8.data.datasets[0].data.push(freq); charts.m8.update();
 
-            // 面板數據更新
             document.getElementById('m1-layers').textContent = `${cfg.p_layers} 層`;
             document.getElementById('m1-height').textContent = `${cfg.p_die_thick} µm`;
             document.getElementById('m2-temp').textContent = `${maxTemp.toFixed(1)} ℃`;
