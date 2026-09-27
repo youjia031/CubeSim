@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>🛸 3D Cube Chip 系統級多物理量行為模擬分析儀</title>
+    <!-- 引入 Chart.js 科學圖表庫 -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #1e3d59;
+            margin-bottom: 5px;
+            margin-top: 0;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 25px;
+        }
+        .control-panel {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #eef2f3;
+        }
+        .display-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .module-card {
+            background: white;
+            border-left: 4px solid #1167b1;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .module-title {
+            font-weight: bold;
+            color: #1167b1;
+            margin-bottom: 12px;
+            font-size: 15px;
+        }
+        .switch-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #222;
+        }
+        .switch-row input {
+            margin-right: 8px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .param-row {
+            margin-bottom: 12px;
+        }
+        .param-row label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .slider-container input {
+            flex: 1;
+            height: 6px;
+            cursor: pointer;
+        }
+        .slider-val {
+            width: 50px;
+            text-align: right;
+            font-size: 13px;
+            font-weight: bold;
+            color: #1e3d59;
+            background: #e8f4f8;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .chart-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eef2f3;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .btn-run {
+            width: 100%;
+            padding: 15px;
+            background: #1e3d59;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-run:hover {
+            background: #17b978;
+            box-shadow: 0 4px 10px rgba(23,185,120,0.3);
+        }
+        .summary-box {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+            border-left: 4px solid #1e3d59;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🛸 3D Cube Chip 智慧行為模擬分析儀</h1>
+    <div class="subtitle">GitHub Pages 專用 — 全功能解離、動態灣數調節與多物理量科學圖表</div>
+    
+    <div class="dashboard">
+        <!-- 左側控制面板 -->
+        <div class="control-panel">
+            
+            <!-- 🌐 模組一：空間幾何與分層系統 -->
+            <div class="module-card">
+                <div class="module-title">🌐 模組一：空間幾何與分層系統</div>
+                <div class="switch-row">
+                    <input type="checkbox" id="sw_geom" checked>
+                    <label for="sw_geom">啟用幾何與體積縮放子系統</label>
+                </div>
+                <div class="param-row">
+                    <label>基礎晶片設計層數 (Layers):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_layers" min="1" max="24" value="6" step="1" oninput="document.getElementById('v_layers').innerText=this.value">
+                        <span class="slider-val" id="v_layers">6</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>體積功耗積壓係數 (Density Factor):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_geo_density" min="1.0" max="3.0" value="1.2" step="0.1" oninput="document.getElementById('v_geo_density').innerText=parseFloat(this.value).toFixed(1)">
+                        <span class="slider-val" id="v_geo_density">1.2</span>
+                    </div>
+                </div>
+            </div>
+            <!-- 🌬️ 模組二：相變液冷與電子回收散熱 -->
+            <div class="module-card">
+                <div class="module-title">🌬️ 模組二：相變液冷與電子回收散熱</div>
+                <div class="switch-row">
+                    <input type="checkbox" id="sw_thermal" checked>
+                    <label for="sw_thermal">啟用相變液冷散熱物理模型</label>
+                </div>
+                <div class="param-row">
+                    <label>相變汽化臨界溫度閾值 (°C):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_cooling_temp" min="40" max="90" value="65" step="1" oninput="document.getElementById('v_cooling_temp').innerText=this.value">
+                        <span class="slider-val" id="v_cooling_temp">65</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>微通道閥門動態流量係數 (Valve K):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_valve_k" min="0.5" max="3.0" value="1.5" step="0.1" oninput="document.getElementById('v_valve_k').innerText=parseFloat(this.value).toFixed(1)">
+                        <span class="slider-val" id="v_valve_k">1.5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🚦 模組三：時序紅綠燈與多元替代路徑 -->
+            <div class="module-card">
+                <div class="module-title">🚦 模組三：時序紅綠燈與多元替代路徑</div>
+                <div class="switch-row">
+                    <input type="checkbox" id="sw_routing" checked>
+                    <label for="sw_routing">啟用 3D 路由與動態時脈調度</label>
+                </div>
+                <div class="param-row">
+                    <label>紅綠燈切換擁堵延遲閾值 (Threshold):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_traffic_th" min="1.0" max="10.0" value="5.0" step="0.5" oninput="document.getElementById('v_traffic_th').innerText=parseFloat(this.value).toFixed(1)">
+                        <span class="slider-val" id="v_traffic_th">5.0</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>TSV 立體電梯/天橋傳輸優化增益 (Gain):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_tsv_speed" min="1.0" max="5.0" value="2.5" step="0.1" oninput="document.getElementById('v_tsv_speed').innerText=parseFloat(this.value).toFixed(1)">
+                        <span class="slider-val" id="v_tsv_speed">2.5</span>
+                    </div>
+                </div>
+            </div>
+            <!-- ⚡ 模組四：平行雙迴路與放電供電系統 -->
+            <div class="module-card">
+                <div class="module-title">⚡ 模組四：平行雙迴路與放電供電系統</div>
+                <div class="switch-row">
+                    <input type="checkbox" id="sw_power" checked>
+                    <label for="sw_power">啟用電位差動態放電補償機制</label>
+                </div>
+                <div class="param-row">
+                    <label>電位差主動放電功耗補償比例 (%):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_power_comp" min="0.0" max="0.4" value="0.15" step="0.05" oninput="document.getElementById('v_power_comp').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_power_comp">0.15</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>斷電備用電壓緊急維持時間 (μs):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_backup_time" min="1" max="20" value="5" step="1" oninput="document.getElementById('v_backup_time').innerText=this.value">
+                        <span class="slider-val" id="v_backup_time">5</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🚀 模組五：三模非均質與光學傳輸系統 -->
+            <div class="module-card">
+                <div class="module-title">🚀 模組五：三模非均質與光學傳传输系統</div>
+                <div class="switch-row">
+                    <input type="checkbox" id="sw_optics" checked>
+                    <label for="sw_optics">啟用比例區間光學信號調變</label>
+                </div>
+                <div class="param-row">
+                    <label>光傳輸通道衰減與環境雜訊比 (Noise):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_opt_noise" min="0.0" max="0.3" value="0.05" step="0.01" oninput="document.getElementById('v_opt_noise').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_opt_noise">0.05</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>多Agent解碼仲裁機制容錯係數 (Tolerance):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_agent_tol" min="0.5" max="1.0" value="0.9" step="0.05" oninput="document.getElementById('v_agent_tol').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_agent_tol">0.9</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🚀 執行按鈕 -->
+            <button class="btn-run" onclick="executeSimulation()">📊 執行多物理量模擬並渲染科學圖表</button>
+        </div>
+
+        <!-- 右側顯示面板 -->
+        <div class="display-panel">
+            <div class="summary-box" id="summaryBox">
+                <strong>📊 系統即時摘要：</strong><br>請調整左側參數並點擊執行，系統將即時調度底層物理引擎。
+            </div>
+            <div class="chart-box">
+                <canvas id="thermalChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="latencyChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 聲明全局圖表對象，供後續 JavaScript 引擎渲染與更新使用
+    let thermalChartInstance = null;
+    let latencyChartInstance = null;
+function executeSimulation() {
+    // 1. 🔍 讀取網頁畫面上 5 大模組的點選開關狀態 (Boolean)
+    const sw_geom = document.getElementById('sw_geom').checked;
+    const sw_thermal = document.getElementById('sw_thermal').checked;
+    const sw_routing = document.getElementById('sw_routing').checked;
+    const sw_power = document.getElementById('sw_power').checked;
+    const sw_optics = document.getElementById('sw_optics').checked;
+
+    // 2. ⚙️ 讀取每個功能模組的動態滑桿參數 (灣數數值)
+    const L = parseInt(document.getElementById('p_layers').value);
+    const density = parseFloat(document.getElementById('p_geo_density').value);
+    const cool_T = parseFloat(document.getElementById('p_cooling_temp').value);
+    const valve = parseFloat(document.getElementById('p_valve_k').value);
+    const t_th = parseFloat(document.getElementById('p_traffic_th').value);
+    const tsv = parseFloat(document.getElementById('p_tsv_speed').value);
+    const p_comp = parseFloat(document.getElementById('p_power_comp').value);
+    const backup_time = parseFloat(document.getElementById('p_backup_time').value);
+    const opt_n = parseFloat(document.getElementById('p_opt_noise').value);
+    const agent_tol = parseFloat(document.getElementById('p_agent_tol').value);
+
+    // 3. 📊 初始化模擬時間步長與物理矩陣
+    const time_steps = 60;
+    
+    // 初始化 2 萬多元素量級的動態溫控陣列 (時間 x 層數)，初始室溫 25 度
+    let temp_history = [];
+    for (let i = 0; i < time_steps; i++) {
+        temp_history.push(new Array(L).fill(25.0));
+    }
+
+    let max_temp_per_step = [];
+    let latency_history = [];
+    let traffic_history = [];
+
+    // 4. 🌀 多物理量動態耦合循環計算
+    for (let t = 1; t < time_steps; t++) {
+        // 模擬隨時間呈正弦波波動的動態資料流傳輸量 (Traffic Load 50% ~ 80%)
+        let current_load = 0.5 + 0.3 * Math.sin(t / 5.0);
+        traffic_history.push(current_load * 100.0);
+
+        // 🌐 模組一：空間幾何與分層功耗積壓
+        let geo_modifier = (sw_geom && L > 4) ? density : 1.0;
+        let heat_in = current_load * 28.0 * geo_modifier;
+
+        // ⚡ 模組四：電位差放電對功耗的動態補償
+        if (sw_power) {
+            heat_in *= (1.0 - p_comp);
+        }
+
+        let step_max_temp = 25.0;
+        // 針對 3D 方塊的每一層(樓層)進行物理迭代運算
+        for (let l = 0; l < L; l++) {
+            let prev_T = temp_history[t - 1][l];
+
+            // 3D 內部層間熱傳導模型 (傅立葉熱傳導簡化矩陣)
+            let k_thermal = 0.25;
+            let heat_exchange = 0.0;
+            if (l > 0) heat_exchange += k_thermal * (temp_history[t - 1][l - 1] - prev_T);
+            if (l < L - 1) heat_exchange += k_thermal * (temp_history[t - 1][l + 1] - prev_T);
+
+            // 🌬️ 模組二：相變液冷子系統臨界點觸發
+            let cooling_out = 0.0;
+            if (sw_thermal && prev_T > cool_T) {
+                // 汽化潛熱引導，動態閥門流量加成
+                cooling_out = (prev_T - cool_T) * 0.4 * valve;
+            }
+
+            // 方塊頂層與底層的邊界外露面額外環境散熱
+            let boundary_cooling = (l === 0 || l === L - 1) ? 1.5 : 0.0;
+
+            // 更新當前時間步長、該層晶片的物理溫度
+            let next_T = prev_T + heat_in + heat_exchange - cooling_out - boundary_cooling;
+            if (next_T < 25.0) next_T = 25.0; // 不得低於環境室溫
+            
+            temp_history[t][l] = next_T;
+            if (next_T > step_max_temp) {
+                step_max_temp = next_T;
+            }
+        }
+        max_temp_per_step.push(step_max_temp);
+
+        // 🚦 模組三：時序紅綠燈與路徑延遲計算
+        let base_latency = current_load * 7.0;
+
+        // 晶片高溫下的阻抗增加與漏電流正回饋干涉
+        if (step_max_temp > 75.0) {
+            base_latency *= (1.0 + (step_max_temp - 75.0) * 0.02);
+        }
+
+        // 當延遲超過紅綠燈切換閾值，啟動多元替代路徑與 TSV 立體電梯
+        if (sw_routing && base_latency > t_th) {
+            base_latency /= tsv;
+        }
+
+        // 🚀 模組五：三模非均質與光學傳輸通道雜訊干涉
+        if (sw_optics) {
+            // 環境雜訊與重傳機制導致時序延遲微幅上升，受到多Agent仲裁容錯調節
+            base_latency += (opt_n * (1.0 - agent_tol) * 5.0);
+        }
+        latency_history.append ? latency_history.push(base_latency) : latency_history.push(base_latency);
+    }
+
+    // 補齊時間軸起點第 0 步的數據對齊
+    max_temp_per_step.unshift(25.0);
+    latency_history.unshift(latency_history[0] || 0.0);
+    traffic_history.unshift(traffic_history[0] || 50.0);
+    // 5. 📊 尋找並計算最終的關鍵科學數據指標
+    const final_max_t = Math.max(...max_temp_per_step);
+    const final_avg_l = latency_history.reduce((a, b) => a + b, 0) / latency_history.length;
+
+    // 6. 📝 渲染網頁上的即時文字摘要面板 (Summary Box)
+    const summaryBox = document.getElementById('summaryBox');
+    summaryBox.innerHTML = `
+        <strong>📊 系統級行為模擬報告 (Simulation Report)</strong><br>
+        • 🧬 測試晶片結構: <strong>${L} 層</strong> 3D 立體方塊堆疊架構<br>
+        • 🔥 晶片運行最高核心溫度: <span style="color:#e63946; font-weight:bold;">${final_max_t.toFixed(2)} °C</span><br>
+        • ⚡ 系統訊號平均傳輸延遲: <span style="color:#1d3557; font-weight:bold;">${final_avg_l.toFixed(2)} 單位</span><br>
+        • 🛠️ 模擬狀態: 物理引擎動態交叉耦合運算完成。
+    `;
+
+    // 7. 📈 準備 Chart.js 時間步長標籤 (X 軸 0 到 59)
+    const labels = Array.from({length: time_steps}, (_, i) => i);
+
+    // 8. 🎨 渲染或更新【圖表一：3D晶片各層溫度演進趨勢圖】
+    const ctx1 = document.getElementById('thermalChart').getContext('2d');
+    
+    // 如果之前有圖表實例存在，先銷毀它，防止滑鼠滑過時畫面閃爍 Bug
+    if (thermalChartInstance) {
+        thermalChartInstance.destroy();
+    }
+
+    // 動態建構各樓層的溫度數據線 (Dataset)
+    let tempDatasets = [];
+    for (let l = 0; l < L; l++) {
+        // 從 temp_history 二維陣列中提取第 l 層的時間序列數據
+        let layerData = temp_history.map(step => step[l]);
+        
+        // 隨層數動態變換顏色線條，方便辨識
+        const hue = (l * (360 / L)) % 360;
+        tempDatasets.push({
+            label: `Layer ${l + 1} (第 ${l + 1} 層)`,
+            data: layerData,
+            borderColor: `hsl(${hue}, 70%, 50%)`,
+            backgroundColor: `hsl(${hue}, 70%, 50%, 0.1)`,
+            borderWidth: 2,
+            pointRadius: 0, // 隱藏數據點，讓線條更平滑
+            fill: false
+        });
+    }
+
+    // 建立新的圖表一實例
+    thermalChartInstance = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: tempDatasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: '3D Cube Chip Multi-Layer Thermal Evolution (熱傳導)',
+                    font: { size: 14, weight: 'bold' }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Simulation Time Steps (時間步長)' } },
+                y: { title: { display: true, text: 'Temperature (°C)' }, min: 20 }
+            }
+        }
+    });
+
+    // 9. 📊 渲染或更新【圖表二：訊號延遲與動態流量雙 Y 軸收斂圖】
+    const ctx2 = document.getElementById('latencyChart').getContext('2d');
+    
+    // 如果之前有圖表實例存在，先銷毀它，防止資料重疊
+    if (latencyChartInstance) {
+        latencyChartInstance.destroy();
+    }
+
+    // 建立新的雙 Y 軸圖表二實例
+    latencyChartInstance = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Signal Transmission Latency (傳輸延遲)',
+                    data: latency_history,
+                    borderColor: '#1d3557',
+                    backgroundColor: 'rgba(29, 53, 87, 0.1)',
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    yAxisID: 'y' // 綁定到左側 Y 軸
+                },
+                {
+                    label: 'Data Traffic Load (資料流量 %)',
+                    data: traffic_history,
+                    borderColor: '#457b9d',
+                    backgroundColor: 'rgba(69, 123, 157, 0.05)',
+                    borderWidth: 1.5,
+                    borderDash:, // 虛線表示流量背景
+                    pointRadius: 0,
+                    yAxisID: 'y1' // 綁定到右側 Y 軸
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Signaling Delay vs Dynamic Traffic Wave (時序與流量)',
+                    font: { size: 14, weight: 'bold' }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Simulation Time Steps (時間步長)' } },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Latency (Delay 單位)' },
+                    min: 0
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Traffic Load (%)' },
+                    min: 0,
+                    max: 100,
+                    grid: {
+                        drawOnChartArea: false // 保持畫面乾淨，不與左軸網格線衝突
+                    }
+                }
+            }
+        }
+    });
+}
+
+// 10. 🔄 網頁載入完成後立即自動執行一次模擬，讓使用者一進網頁就能看到預設圖表
+window.onload = function() {
+    executeSimulation();
+};
+</script>
+</body>
+</html>
