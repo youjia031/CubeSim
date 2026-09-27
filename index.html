@@ -2,58 +2,94 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>🛸 CubeSim 3D 晶片系統級多物理量分析儀</title>
+    <title>🛸 CubeSim Pro — 3D 晶片極致科研行為模擬分析儀</title>
     <!-- 引入 Chart.js 科學圖表庫 -->
     <script src="https://jsdelivr.net"></script>
     <style>
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: #0b0f19; /* 改用極具科技感的深色實驗室背景 */
+            background-color: #070a13; /* 更深邃的半導體實驗室背景 */
             margin: 0;
             padding: 20px;
             color: #e2e8f0;
         }
         .container {
-            max-width: 1400px; /* 拓寬介面，容納更多詳細數據 */
+            max-width: 1500px; /* 進一步拓寬面板，以容納更多微調滑桿 */
             margin: 0 auto;
-            background: #151d30;
+            background: #0f1626;
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         h1 {
             text-align: center;
             color: #38bdf8;
             margin-bottom: 5px;
             margin-top: 0;
-            font-size: 24px;
+            font-size: 26px;
         }
         .subtitle {
             text-align: center;
-            color: #94a3b8;
+            color: #64748b;
             font-size: 13px;
             margin-bottom: 25px;
         }
         .dashboard {
             display: grid;
-            grid-template-columns: 450px 1fr; /* 左側固定控制，右側寬敞顯示 */
+            grid-template-columns: 480px 1fr; /* 左側寬敞的控制面板，右側為大數據分頁區 */
             gap: 25px;
         }
         .control-panel {
-            background: #0f172a;
+            background: #050b14;
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #1e293b;
             max-height: 850px;
-            overflow-y: auto; /* 允許左側長面板滾動 */
+            overflow-y: auto; /* 允許巨量滑桿滾動 */
         }
         .display-panel {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+        /* 💡 核心改動：頂部獨立切換分頁標籤（Tabs） */
+        .tabs-header {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 10px;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: #131a2c;
+            color: #94a3b8;
+            border: 1px solid #1e293b;
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: #0284c7;
+            color: white;
+            border-color: #0284c7;
+            box-shadow: 0 -4px 12px rgba(2,132,199,0.2);
+        }
+        .tab-content {
+            display: none; /* 預設先隱藏，由 JS 控制顯示切換 */
+            background: #090d16;
+            padding: 20px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #1e293b;
+            border-top: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
         .module-card {
-            background: #1e293b;
+            background: #131a2c;
             border-left: 4px solid #38bdf8;
             padding: 15px;
             margin-bottom: 15px;
@@ -100,21 +136,50 @@
             accent-color: #38bdf8;
         }
         .slider-val {
-            width: 50px;
+            width: 55px;
             text-align: right;
             font-size: 12px;
             font-weight: bold;
             color: #38bdf8;
-            background: #0f172a;
+            background: #050b14;
             padding: 2px 6px;
             border-radius: 4px;
             border: 1px solid #1e293b;
         }
-        .chart-box {
-            background: #0f172a;
-            padding: 15px;
-            border-radius: 8px;
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            background: #131a2c;
+            padding: 10px;
+            border-radius: 6px;
             border: 1px solid #1e293b;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            transition: all 0.3s;
+        }
+        .progress-container {
+            width: 100%;
+            background: #050b14;
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #1e293b;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #38bdf8, #10b981);
+            transition: width 0.1s linear;
         }
         .btn-run {
             width: 100%;
@@ -127,13 +192,14 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
+            margin-top: 10px;
         }
         .btn-run:hover {
             background: #10b981;
             box-shadow: 0 4px 12px rgba(16,185,129,0.3);
         }
         .summary-box {
-            background: #1e293b;
+            background: #131a2c;
             padding: 15px;
             border-radius: 6px;
             font-size: 13px;
@@ -141,32 +207,76 @@
             border-left: 4px solid #38bdf8;
             color: #cbd5e1;
         }
-        .grid-data-panel {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 10px;
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 12px;
         }
-        .data-card {
-            background: #0f172a;
-            padding: 10px;
-            border-radius: 4px;
+        .data-table th, .data-table td {
+            border: 1px solid #1e293b;
+            padding: 8px;
             text-align: center;
+        }
+        .data-table th {
+            background: #131a2c;
+            color: #38bdf8;
+        }
+        .data-table tr:nth-child(even) {
+            background: #0b111e;
+        }
+        .chart-box {
+            background: #050b14;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            margin-bottom: 20px;
+        }
+        .legend-toggle-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #131a2c;
+            border-radius: 6px;
             border: 1px solid #1e293b;
         }
-        .data-card div:first-child { font-size: 11px; color: #94a3b8; }
-        .data-card div:last-child { font-size: 14px; font-weight: bold; color: #38bdf8; margin-top: 3px; }
+        .toggle-btn {
+            padding: 4px 10px;
+            font-size: 11px;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .toggle-btn.inactive {
+            background: #050b14;
+            color: #64748b;
+            border-color: #1e293b;
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🛸 CubeSim 3D 晶片系統級多物理量分析儀</h1>
-    <div class="subtitle">極度詳細科研版 — 支援多物理量動態耦合與 21 項核心機制分段校驗</div>
+    <h1>🛸 CubeSim Pro — 3D 晶片極致科研行為模擬分析儀</h1>
+    <div class="subtitle">全面擴充微調滑桿 — 獨立切換數據/圖表分頁、自定義物理曲線動態調度面板</div>
     
     <div class="dashboard">
         <!-- 左側控制面板 -->
         <div class="control-panel">
             
+            <div class="status-container">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">系統狀態：就緒 (Ready)</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
             <!-- 🌐 模組一：空間幾何與分層系統 -->
             <div class="module-card">
                 <div class="module-title">🌐 模組一：空間幾何與分層系統</div>
@@ -186,6 +296,13 @@
                     <div class="slider-container">
                         <input type="range" id="p_geo_density" min="1.0" max="3.0" value="1.2" step="0.1" oninput="document.getElementById('v_geo_density').innerText=parseFloat(this.value).toFixed(1)">
                         <span class="slider-val" id="v_geo_density">1.2</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>層間介面熱阻阻抗 (Inter-layer Thermal R):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_inter_r" min="0.05" max="0.50" value="0.25" step="0.01" oninput="document.getElementById('v_inter_r').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_inter_r">0.25</span>
                     </div>
                 </div>
             </div>
@@ -210,6 +327,13 @@
                         <span class="slider-val" id="v_valve_k">1.5</span>
                     </div>
                 </div>
+                <div class="param-row">
+                    <label>廢熱回收熱電轉換效率 (Thermoelectric %):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_tec_eff" min="0.0" max="0.2" value="0.08" step="0.01" oninput="document.getElementById('v_tec_eff').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_tec_eff">0.08</span>
+                    </div>
+                </div>
             </div>
 
             <!-- 🚦 模組三：時序紅綠燈與多元替代路徑 -->
@@ -231,6 +355,13 @@
                     <div class="slider-container">
                         <input type="range" id="p_tsv_speed" min="1.0" max="5.0" value="2.5" step="0.1" oninput="document.getElementById('v_tsv_speed').innerText=parseFloat(this.value).toFixed(1)">
                         <span class="slider-val" id="v_tsv_speed">2.5</span>
+                    </div>
+                </div>
+                <div class="param-row">
+                    <label>高溫漏電流阻抗劣化係數 (Thermal Imp Factor):</label>
+                    <div class="slider-container">
+                        <input type="range" id="p_imp_factor" min="0.01" max="0.05" value="0.02" step="0.01" oninput="document.getElementById('v_imp_factor').innerText=parseFloat(this.value).toFixed(2)">
+                        <span class="slider-val" id="v_imp_factor">0.02</span>
                     </div>
                 </div>
             </div>
@@ -281,244 +412,396 @@
             </div>
 
             <!-- 🚀 執行模擬按鈕 -->
-            <button class="btn-run" onclick="executeSimulation()">📊 執行系統級行為模擬與多維度圖表渲染</button>
+            <button class="btn-run" onclick="startDynamicSimulation()">📊 執行步進式動態耦合運算</button>
         </div>
 
-        <!-- 右側詳細科研數據與圖表顯示面板 -->
+        <!-- 右側大數據分頁顯示面板 -->
         <div class="display-panel">
-            <div class="summary-box" id="summaryBox">
-                <strong>📊 系統級多物理量行為模擬報告</strong><br>
-                請調整左側各模組功能開關與技術灣數，點擊執行後，系統將運行 60 個時間步長的動態耦合運算，並輸出設計用詳細數據。
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('tab_charts')">📈 獨立圖表分頁 (Visual Analytics)</button>
+                <button class="tab-btn" onclick="switchTab('tab_data')">📋 獨立純數據分頁 (High-Density Logs)</button>
             </div>
-            
-            <!-- 極度詳細的即時科研數據指標卡片 -->
-            <div class="grid-data-panel">
-                <div class="data-card"><div>最高峰值溫度</div><div id="d_max_temp">-- °C</div></div>
-                <div class="data-card"><div>平均訊號延遲</div><div id="d_avg_lat">-- 單位</div></div>
-                <div class="data-card"><div>平均資料吞吐量</div><div id="d_avg_thr">-- %</div></div>
-                <div class="data-card"><div>預估系統訊號誤碼率</div><div id="d_ber_val">--</div></div>
+            <!-- 📈 分頁一：純圖表可視化面板 (預設啟用 active) -->
+            <div id="tab_charts" class="tab-content active">
+                <div class="summary-box" id="summaryBox">
+                    <strong>📊 系統級多物理量行為模擬報告</strong><br>
+                    請調整左側 5 大模組參數，點擊執行後，系統將運行 60 個時間步長的「步進式動態耦合運算」，您可以即時觀看圖表與數據的波形。
+                </div>
+                
+                <!-- 💡 創新功能：圖表線條動態勾選調度面板 -->
+                <div style="margin-top:15px; font-size:12px; color:#94a3b8; font-weight:bold;">🎛️ 圖表線條動態調度面板 (勾選可隱藏/顯示對應曲線)：</div>
+                <div class="legend-toggle-container" id="legendContainer">
+                    <!-- 運行時將由 JavaScript 自動生成各樓層的勾選按鈕 -->
+                </div>
+
+                <div class="chart-box">
+                    <canvas id="thermalChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <canvas id="latencyChart"></canvas>
+                </div>
             </div>
 
-            <div class="chart-box">
-                <canvas id="thermalChart"></canvas>
+            <!-- 📋 分頁二：純數據高密度日誌面板 -->
+            <div id="tab_data" class="tab-content">
+                <div style="background: #131a2c; padding: 15px; border-radius: 6px; border: 1px solid #1e293b; margin-bottom: 15px;">
+                    <strong>📋 全時間步長多物理量耦合科研日誌 (Time-Series Raw Logs)</strong><br>
+                    <span style="font-size:12px; color:#94a3b8;">以下展示每個時間步長下，3D 晶片內部核心、時序延遲、流量與信號誤碼率（BER）的極詳細數值。</span>
+                </div>
+                
+                <div style="max-height: 600px; overflow-y: auto; border: 1px solid #1e293b; border-radius: 6px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>步長 (t)</th>
+                                <th>流量 (%)</th>
+                                <th>最高核心溫度 (°C)</th>
+                                <th>訊號延遲 (Delay)</th>
+                                <th>預估誤碼率 (BER)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rawLogTableBody">
+                            <tr>
+                                <td colspan="5" style="color:#64748b; padding:20px;">暫無數據，請先點擊左側按鈕執行動態模擬。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="chart-box">
-                <canvas id="latencyChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+
+        </div> <!-- 右側顯示面板結束 -->
+    </div> <!-- 雙欄排版結束 -->
+</div> <!-- 總容器結束 -->
 
 <script>
-    // 建立全域圖表對象，供後續 JavaScript 引擎更新使用
+    // 聲明全局圖表對象與動態調度實例變數
     let thermalChartInstance = null;
     let latencyChartInstance = null;
-function executeSimulation() {
-    // 1. 🔍 讀取網頁畫面上 5 大模組的點選開關狀態
+    let simulationTimer = null; // 動態步進計時器
+    let hiddenLayersMap = {};   // 記錄被使用者隱藏的圖表線條狀態
+// 1. 🎛️ 網頁獨立分頁切換邏輯 (Tab Switching Logic)
+function switchTab(tabId) {
+    // 隱藏所有分頁內容
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    // 取消所有分頁按鈕的選取樣式
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    // 顯示被點選的分頁與點亮按鈕
+    document.getElementById(tabId).classList.add('active');
+    // 尋找對應的按鈕並加上 active 樣式
+    const event = window.event;
+    if (event && event.target) {
+        event.target.classList.add('active');
+    } else {
+        // 初始化或自動切換時的防錯保護
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            if (btn.getAttribute('onclick').includes(tabId)) btn.classList.add('active');
+        });
+    }
+}
+
+// 2. ⏳ 步進式動態模擬引擎初始化 (Dynamic Simulation Bootstrapper)
+function startDynamicSimulation() {
+    // 如果上一次的動態運算還在跑，先強制清除，防止定時器疊加重疊 Bug
+    if (simulationTimer) {
+        clearInterval(simulationTimer);
+    }
+
+    // ⚡ 立即更新動態狀態指示燈與進度條外殼
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const progressBar = document.getElementById('progressBar');
+    
+    statusDot.style.background = '#38bdf8';
+    statusDot.style.boxShadow = '0 0 12px #38bdf8';
+    statusText.innerText = '系統狀態：動態耦合運算中 (Running...)';
+    progressBar.style.width = '0%';
+    document.querySelector('.progress-container').style.display = 'block';
+
+    // 🔍 讀取網頁畫面上 5 大模組的點選開關狀態
     const sw_geom = document.getElementById('sw_geom').checked;
     const sw_thermal = document.getElementById('sw_thermal').checked;
     const sw_routing = document.getElementById('sw_routing').checked;
     const sw_power = document.getElementById('sw_power').checked;
     const sw_optics = document.getElementById('sw_optics').checked;
 
-    // 2. ⚙️ 讀取每個功能模組的動態滑桿參數
+    // ⚙️ 讀取擴充後的極高精度科研灣數滑桿參數
     const L = parseInt(document.getElementById('p_layers').value);
     const density = parseFloat(document.getElementById('p_geo_density').value);
+    const inter_r = parseFloat(document.getElementById('p_inter_r').value);
     const cool_T = parseFloat(document.getElementById('p_cooling_temp').value);
     const valve = parseFloat(document.getElementById('p_valve_k').value);
+    const tec_eff = parseFloat(document.getElementById('p_tec_eff').value);
     const t_th = parseFloat(document.getElementById('p_traffic_th').value);
     const tsv = parseFloat(document.getElementById('p_tsv_speed').value);
+    const imp_f = parseFloat(document.getElementById('p_imp_factor').value);
     const p_comp = parseFloat(document.getElementById('p_power_comp').value);
+    const backup_time = parseFloat(document.getElementById('p_backup_time').value);
     const opt_n = parseFloat(document.getElementById('p_opt_noise').value);
     const agent_tol = parseFloat(document.getElementById('p_agent_tol').value);
 
-    // 3. 📊 初始化模擬時間步長與高精度物理狀態矩陣
+    // 清空詳細數據表格內容，準備重新一行一行寫入日誌
+    document.getElementById('rawLogTableBody').innerHTML = '';
+
+    // 初始化科研數據的時間序列容器
     const time_steps = 60;
-    let temp_history = [];
-    for (let i = 0; i < time_steps; i++) {
-        temp_history.push(new Array(L).fill(25.0));
-    }
-
-    let max_temp_per_step = [];
-    let latency_history = [];
-    let traffic_history = [];
-    let ber_history = [];
+    let current_step = 1;
+    
+    let temp_history = [new Array(L).fill(25.0)]; // 第 0 步初始環境室溫 25°C
+    let max_temp_per_step = [25.0];
+    let latency_history = [0.0];
+    let traffic_history = [50.0];
+    let ber_history = [0.0001];
     let total_throughput = 0;
+    // 3. 🌀 步進式定時演算法循環 (50ms 觸發一步，實現「正在運行」之動態效果)
+    simulationTimer = setInterval(function() {
+        if (current_step >= time_steps) {
+            // 如果 60 步全部跑完，清除計時器，觸發結案渲染（將在第九段實作）
+            clearInterval(simulationTimer);
+            finalizeSimulation(L, max_temp_per_step, latency_history, traffic_history, ber_history, temp_history, total_throughput);
+            return;
+        }
 
-    // 4. 🌀 多物理量動態耦合循環計算正式啟動
-    for (let t = 1; t < time_steps; t++) {
-        let current_load = 0.5 + 0.3 * Math.sin(t / 5.0);
+        // 模擬隨時間呈正弦波波動的動態資料流傳輸量 (真實工作負載波形)
+        let current_load = 0.5 + 0.3 * Math.sin(current_step / 5.0);
         traffic_history.push(current_load * 100.0);
         total_throughput += current_load * 100.0;
 
+        // 🌐 模組一：空間幾何與分層功耗積壓計算
         let geo_modifier = (sw_geom && L > 4) ? density : 1.0;
         let heat_in = current_load * 28.0 * geo_modifier;
 
+        // ⚡ 模組四：平行雙迴路與放電供電補償
         if (sw_power) {
             heat_in *= (1.0 - p_comp);
         }
 
         let step_max_temp = 25.0;
+        let next_step_temperatures = new Array(L).fill(25.0);
 
-        // 針對 3D 方塊的每一層進行物理迭代運算
+        // 針對 3D 方塊的每一層進行詳細物理迭代運算
         for (let l = 0; l < L; l++) {
-            let prev_T = temp_history[t - 1][l];
-            let k_thermal = 0.25;
-            let heat_exchange = 0.0;
-            
-            if (l > 0) heat_exchange += k_thermal * (temp_history[t - 1][l - 1] - prev_T);
-            if (l < L - 1) heat_exchange += k_thermal * (temp_history[t - 1][l + 1] - prev_T);
+            let prev_T = temp_history[current_step - 1][l];
 
+            // 3D 內部層間熱傳導模型 (融入使用者微調之層間介面熱阻阻抗 inter_r)
+            let heat_exchange = 0.0;
+            if (l > 0) heat_exchange += inter_r * (temp_history[current_step - 1][l - 1] - prev_T);
+            if (l < L - 1) heat_exchange += inter_r * (temp_history[current_step - 1][l + 1] - prev_T);
+
+            // 🌬️ 模組二：相變液冷與電子回收散熱系統
             let cooling_out = 0.0;
             if (sw_thermal && prev_T > cool_T) {
-                cooling_out = (prev_T - cool_T) * 0.4 * valve;
+                // 汽化潛熱引導，微通道閥門動態流量加成
+                let base_cooling = (prev_T - cool_T) * 0.4 * valve;
+                // 融入創新功能：廢熱回收熱電轉換效率 (回收部分廢熱轉為電力，額外微幅帶走熱量)
+                let tec_bonus = sw_power ? (prev_T - cool_T) * tec_eff * 0.5 : 0.0;
+                cooling_out = base_cooling + tec_bonus;
             }
 
+            // 方塊頂層與底層的邊界外露面額外物理散熱
             let boundary_cooling = (l === 0 || l === L - 1) ? 1.5 : 0.0;
+
+            // 更新當前時間步長、該層晶片的物理溫度
             let next_T = prev_T + heat_in + heat_exchange - cooling_out - boundary_cooling;
-            if (next_T < 25.0) next_T = 25.0;
+            if (next_T < 25.0) next_T = 25.0; // 物理限制：不得低於環境室溫
             
-            temp_history[t][l] = next_T;
+            next_step_temperatures[l] = next_T;
             if (next_T > step_max_temp) {
                 step_max_temp = next_T;
             }
         }
+        temp_history.push(next_step_temperatures);
         max_temp_per_step.push(step_max_temp);
-
-        // 🚦 模組三：時序紅綠燈延遲計算
+        // 🚦 模組三：時序紅綠燈與多元替代路徑延遲計算
         let base_latency = current_load * 7.0;
+
+        // 晶片高溫下的阻抗增加與漏電流正回饋干涉（融入微調劣化係數 imp_f）
         if (step_max_temp > 75.0) {
-            base_latency *= (1.0 + (step_max_temp - 75.0) * 0.02);
+            base_latency *= (1.0 + (step_max_temp - 75.0) * imp_f);
         }
 
+        // 當延遲超過紅綠燈切換閾值，啟動多元替代路徑與 TSV 立體電梯避堵機制
         if (sw_routing && base_latency > t_th) {
             base_latency /= tsv;
         }
 
-        // 🚀 模組五：信號傳輸通道雜訊干涉
-        let current_ber = 0.0001;
+        // 🚀 模組五：三模非均質與光學傳輸通道雜訊干涉
+        let current_ber = 0.0001; // 基準誤碼率
         if (sw_optics) {
+            // 環境雜訊與衰減會使誤碼率上升，多Agent解碼仲裁機制會對其進行容錯修正優化
             current_ber = (opt_n * 0.05) * (1.0 - (agent_tol - 0.5));
+            // 誤碼重傳機制導致時序延遲微幅上升
             base_latency += (current_ber * 150.0);
         } else {
+            // 若未啟用前沿光學傳輸，傳統銅線在高層數、高負載下誤碼率會大幅惡化
             current_ber = 0.001 * (L * 0.5) * geo_modifier;
         }
         
-        // 修正：徹底移除原本錯誤的 .append 語法
         latency_history.push(base_latency);
         ber_history.push(current_ber);
+
+        // 📋 實作動態運行設計：即時一行一行將當前數據寫入「純數據高密度日誌表格」
+        const tableBody = document.getElementById('rawLogTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${current_step}</strong></td>
+            <td style="color:#10b981; font-weight:bold;">${(current_load * 100).toFixed(1)} %</td>
+            <td style="color:#f43f5e; font-weight:bold;">${step_max_temp.toFixed(2)} °C</td>
+            <td style="color:#38bdf8; font-weight:bold;">${base_latency.toFixed(2)}</td>
+            <td style="color:#a855f7; font-family:monospace;">${current_ber.toExponential(3)}</td>
+        `;
+        tableBody.appendChild(row);
+
+        // ⏳ 驅動進度條與加載動畫更新
+        const progressPercent = (current_step / (time_steps - 1)) * 100;
+        document.getElementById('progressBar').style.width = `${progressPercent}%`;
+
+        // 即時繪製並更新圖表線條，讓使用者親眼看到波形「一波一波長出來」的動態過程
+        updateIncrementalCharts(current_step, L, temp_history, latency_history, traffic_history);
+
+        current_step++;
+    }, 50); // 每 50 毫秒高速步進迭代一次，提供極致流暢的即時演算體驗
+}
+// 4. 📈 增量圖表即時刷新函式 (實現資料動態長出來的視覺設計)
+function updateIncrementalCharts(step, L, temp_history, latency_history, traffic_history) {
+    const labels = Array.from({length: step + 1}, (_, i) => i);
+    const ctx1 = document.getElementById('thermalChart').getContext('2d');
+
+    // 首次運行或圖表不存在時，初始化熱傳導圖表
+    if (!thermalChartInstance) {
+        let tempDatasets = [];
+        for (let l = 0; l < L; l++) {
+            const hue = (l * (360 / L)) % 360;
+            tempDatasets.push({
+                label: `Layer ${l + 1}`,
+                data: [25.0],
+                borderColor: `hsl(${hue}, 75%, 60%)`,
+                backgroundColor: `hsl(${hue}, 75%, 60%, 0.05)`,
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false,
+                hidden: hiddenLayersMap[`layer_${l}`] || false // 保持使用者的隱藏狀態
+            });
+        }
+        thermalChartInstance = new Chart(ctx1, {
+            type: 'line',
+            data: { labels:, datasets: tempDatasets },
+            options: {
+                responsive: true,
+                animation: false, // 關閉動畫以保證高頻步進時的效能流暢
+                plugins: { title: { display: true, text: '3D Cube Chip Multi-Layer Thermal Evolution', color: '#94a3b8' } },
+                scales: {
+                    x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, min: 20 }
+                }
+            }
+        });
+        
+        // 💡 建立圖表線條動態勾選調度面板
+        generateLegendToggles(L);
+    } else {
+        // 後續步長：更新 X 軸標籤與各樓層熱流數據
+        thermalChartInstance.data.labels = labels;
+        for (let l = 0; l < L; l++) {
+            thermalChartInstance.data.datasets[l].data = temp_history.map(s => s[l]);
+        }
+        thermalChartInstance.update();
     }
 
-    max_temp_per_step.unshift(25.0);
-    latency_history.unshift(latency_history[0] || 0.0);
-    traffic_history.unshift(traffic_history[0] || 50.0);
-    ber_history.unshift(ber_history[0] || 0.0001);
+    // 同步刷新雙 Y 軸時序與流量圖表
+    updateLatencyChart(step, labels, latency_history, traffic_history);
+}
 
-    // 5. 📊 計算與提取關鍵科研數據指標
+// 5. 🎛️ 生成自定義物理曲線動態調度面板
+function generateLegendToggles(L) {
+    const container = document.getElementById('legendContainer');
+    container.innerHTML = ''; // 清空舊按鈕
+    
+    for (let l = 0; l < L; l++) {
+        const btn = document.createElement('button');
+        btn.className = 'toggle-btn';
+        if (hiddenLayersMap[`layer_${l}`]) btn.classList.add('inactive');
+        btn.innerText = `隱藏/顯示 Layer ${l + 1}`;
+        btn.onclick = function() {
+            const isHidden = !thermalChartInstance.data.datasets[l].hidden;
+            thermalChartInstance.data.datasets[l].hidden = isHidden;
+            hiddenLayersMap[`layer_${l}`] = isHidden; // 記錄狀態
+            this.classList.toggle('inactive', isHidden);
+            thermalChartInstance.update();
+        };
+        container.appendChild(btn);
+    }
+}
+// 6. 📊 雙 Y 軸時序與流量圖表動態增量刷新
+function updateLatencyChart(step, labels, latency_history, traffic_history) {
+    const ctx2 = document.getElementById('latencyChart').getContext('2d');
+    
+    if (!latencyChartInstance) {
+        latencyChartInstance = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Signal Latency', data: latency_history, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.1)', borderWidth: 2.5, pointRadius: 0, yAxisID: 'y' },
+                    { label: 'Traffic Load (%)', data: traffic_history, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.02)', borderWidth: 1.5, borderDash:, pointRadius: 0, yAxisID: 'y1' }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: false,
+                plugins: { title: { display: true, text: 'Signaling Delay vs Dynamic Traffic Wave', color: '#94a3b8' } },
+                scales: {
+                    x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                    y: { type: 'linear', display: true, position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#38bdf8' }, min: 0 },
+                    y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#10b981' }, min: 0, max: 100, grid: { drawOnChartArea: false } }
+                }
+            }
+        });
+    } else {
+        latencyChartInstance.data.labels = labels;
+        latencyChartInstance.data.datasets[0].data = latency_history;
+        latencyChartInstance.data.datasets[1].data = traffic_history;
+        latencyChartInstance.update();
+    }
+}
+
+// 7. 🏆 步進式運算結束後的數據結案與狀態回歸
+function finalizeSimulation(L, max_temp_per_step, latency_history, traffic_history, ber_history, temp_history, total_throughput) {
     const final_max_t = Math.max(...max_temp_per_step);
     const final_avg_l = latency_history.reduce((a, b) => a + b, 0) / latency_history.length;
-    const final_avg_thr = total_throughput / (time_steps - 1);
+    const final_avg_thr = total_throughput / (traffic_history.length - 1);
     const final_ber = ber_history[ber_history.length - 1];
 
-    // 6. 🎛️ 即時更新四大數據卡片
+    // ⚡ 變更狀態指示燈為「就緒」，進度條定格於 100%
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    statusDot.style.background = '#10b981';
+    statusDot.style.boxShadow = '0 0 12px #10b981';
+    statusText.innerText = '系統狀態：就緒 (Ready). 運算已全數收斂！';
+
+    // 🎛️ 結案渲染更新四大高精度數據卡片
     document.getElementById('d_max_temp').innerText = `${final_max_t.toFixed(2)} °C`;
     document.getElementById('d_avg_lat').innerText = `${final_avg_l.toFixed(2)}`;
     document.getElementById('d_avg_thr').innerText = `${final_avg_thr.toFixed(1)} %`;
     document.getElementById('d_ber_val').innerText = final_ber.toExponential(3);
 
-    // 7. 📝 更新網頁系統摘要描述
+    // 📝 更新文字系統摘要描述
     const summaryBox = document.getElementById('summaryBox');
     summaryBox.innerHTML = `
-        <strong>📊 系統級行為模擬報告 (CubeSim Report)</strong><br>
+        <strong>📊 系統級行為模擬報告 (CubeSim Pro)</strong><br>
         • 🧬 測試架構: <strong>${L} 層</strong> 3D 立體方塊非均質晶片堆疊<br>
         • 🔥 峰值核心溫度: <span style="color:#f43f5e; font-weight:bold;">${final_max_t.toFixed(2)} °C</span><br>
         • ⚡ 訊號吞吐延遲: <span style="color:#38bdf8; font-weight:bold;">${final_avg_l.toFixed(2)} 單位</span><br>
-        • 📈 數據狀態: 多物理量邊界矩陣收斂完成，已產生高密度科研分析圖表。
+        • 📈 數據狀態: 全時間步長多物理量偏微分矩陣收斂。您可切換分頁查看高密度日誌。
     `;
-
-    // 8. 🎨 渲染或更新【圖表一：3D晶片各層溫度演進趨勢圖】
-    const ctx1 = document.getElementById('thermalChart').getContext('2d');
-    const labels = Array.from({length: time_steps}, (_, i) => i);
-    
-    if (thermalChartInstance) { thermalChartInstance.destroy(); }
-
-    let tempDatasets = [];
-    for (let l = 0; l < L; l++) {
-        let layerData = temp_history.map(step => step[l]);
-        const hue = (l * (360 / L)) % 360;
-        tempDatasets.push({
-            label: `Layer ${l + 1}`,
-            data: layerData,
-            borderColor: `hsl(${hue}, 75%, 60%)`,
-            backgroundColor: `hsl(${hue}, 75%, 60%, 0.05)`,
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: false
-        });
-    }
-
-    thermalChartInstance = new Chart(ctx1, {
-        type: 'line',
-        data: { labels: labels, datasets: tempDatasets },
-        options: {
-            responsive: true,
-            plugins: {
-                title: { display: true, text: '3D Cube Chip Multi-Layer Thermal Evolution', color: '#94a3b8' }
-            },
-            scales: {
-                x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' }, min: 20 }
-            }
-        }
-    });
-
-    // 9. 📊 渲染或更新【圖表二：訊號傳輸延遲與動態流量雙 Y 軸收斂圖】
-    const ctx2 = document.getElementById('latencyChart').getContext('2d');
-    if (latencyChartInstance) { latencyChartInstance.destroy(); }
-
-    latencyChartInstance = new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Signal Latency',
-                    data: latency_history,
-                    borderColor: '#38bdf8',
-                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                    borderWidth: 2.5,
-                    pointRadius: 0,
-                    yAxisID: 'y'
-                },
-                {
-                    label: 'Traffic Load (%)',
-                    data: traffic_history,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.02)',
-                    borderWidth: 1.5,
-                    borderDash:, // 修正：完美修正原本破壞編譯之語法錯誤
-                    pointRadius: 0,
-                    yAxisID: 'y1'
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                title: { display: true, text: 'Signaling Delay vs Dynamic Traffic Wave', color: '#94a3b8' }
-            },
-            scales: {
-                x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                y: { type: 'linear', display: true, position: 'left', grid: { color: '#1e293b' }, ticks: { color: '#38bdf8' }, min: 0 },
-                y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#10b981' }, min: 0, max: 100, grid: { drawOnChartArea: false } }
-            }
-        }
-    });
 }
 
-// 10. 🔄 網頁載入完成後立即自動觸發一次模擬
+// 8. 🔄 網頁載入完成後立即自動觸發一次預設模擬
 window.onload = function() {
-    executeSimulation();
+    startDynamicSimulation();
 };
 </script>
 </body>
