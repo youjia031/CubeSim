@@ -1,6 +1,6 @@
 {
-    "timestamp": "2026-10-08",
-    "version": "IEEE-IRDS-AUTO-2026-10-08",
+    "timestamp": "2026-10-09",
+    "version": "IEEE-IRDS-AUTO-2026-10-09",
     "tsv_latency_base_ns": 3.8,
     "thermal_resistance_k_w": 0.32,
     "ir_drop_baseline_v": 0.08,
